@@ -42,6 +42,7 @@ public class User extends DataEntity<User> {
 	
 	private String oldLoginIp;	// 上次登陆IP
 	private Date oldLoginDate;	// 上次登陆日期
+	private Integer flowCount;	// 可用流量
 	
 	private Role role;	// 根据角色查询用户条件
 	
@@ -97,6 +98,14 @@ public class User extends DataEntity<User> {
 		this.company = company;
 	}
 	
+	public Integer getFlowCount() {
+		return flowCount;
+	}
+
+	public void setFlowCount(Integer flowCount) {
+		this.flowCount = flowCount;
+	}
+
 	@JsonIgnore
 	@NotNull(message="归属部门不能为空")
 	public Office getOffice() {

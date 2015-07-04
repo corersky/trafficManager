@@ -67,4 +67,10 @@ public interface UserDao extends CrudDao<User> {
 	 */
 	public int updateUserInfo(User user);
 
+	/**
+	 * 更新用户流量
+	 * @param flowCount
+	 */
+	public void updateFlowCount(User user);
+
 }
