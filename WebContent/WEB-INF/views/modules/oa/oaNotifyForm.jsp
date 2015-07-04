@@ -57,7 +57,23 @@
 				<span class="help-inline"><font color="red">*</font> </span>
 			</div>
 		</div>
-		
+		<c:if test="${oaNotify.status ne '1'}">
+			<div class="control-group">
+				<label class="control-label">状态：</label>
+				<div class="controls">
+					<form:radiobuttons path="status" items="${fns:getDictList('oa_notify_status')}" itemLabel="label" itemValue="value" htmlEscape="false" class="required"/>
+					<span class="help-inline"><font color="red">*</font> 发布后不能进行操作。</span>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">接受人：</label>
+				<div class="controls">
+	                <sys:treeselect id="oaNotifyRecord" name="oaNotifyRecordIds" value="${oaNotify.oaNotifyRecordIds}" labelName="oaNotifyRecordNames" labelValue="${oaNotify.oaNotifyRecordNames}"
+						title="用户" url="/sys/office/treeData?type=3" cssClass="input-xxlarge required" notAllowSelectParent="true" checked="true"/>
+					<span class="help-inline"><font color="red">*</font> </span>
+				</div>
+			</div>
+		</c:if>
 		<c:if test="${oaNotify.status eq '1'}">
 			<div class="control-group">
 				<label class="control-label">接受人：</label>
