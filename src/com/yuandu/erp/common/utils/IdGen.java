@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Lazy(false)
-public class IdGen implements  SessionIdGenerator {
+public class IdGen implements SessionIdGenerator {
 
 	private static SecureRandom random = new SecureRandom();
 	
@@ -40,10 +40,10 @@ public class IdGen implements  SessionIdGenerator {
 		random.nextBytes(randomBytes);
 		return Encodes.encodeBase62(randomBytes);
 	}
-	
+
 	@Override
 	public Serializable generateId(Session session) {
 		return IdGen.uuid();
 	}
-	
+
 }

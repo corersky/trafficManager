@@ -7,194 +7,48 @@
 	<%@include file="/WEB-INF/views/include/treetable.jsp" %>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			init();
+			var tpl = $("#treeTableTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
+			var data = ${fns:toJson(list)}, rootId = "0";
+			addRow("#treeTableList", tpl, data, rootId, true);
+			$("#treeTable").treeTable({expandLevel : 5});
 		});
-		
-		function init() {
-			page_colmodel = [  {
-				display : '序号',
-				name : 'id',
-				width : '45',
-				isNo : true
-			}, {
-				display : '区域编码',
-				width : '125',
-				name : 'id',
-				isReplaceText:true
-			}, {
-				display : '区域名称',
-				name : 'office.name',
-				isConfigurable :true,
-				align : 'left'
-			}, {
-				display : '省市编码',
-				name : 'province',
-				sortable : false,
-				align : 'left'
-			}, {
-				display : '地区编码',
-				name : 'city',
-				align : 'right'
-			}, {
-				display : '区域类型',
-				name : 'type',
-				isConfigurable :true,
-				align : 'left',
-				replaceHtmlFunction : 'replaceTypeHtml'
-			}, {
-				display : '操作',
-				name : '',
-				width : '100',
-				sortable : false,
-				align : 'center',
-				isButton : true
-			} ];
-			
-			var page_colmode_detail = [{
-				display : '编码',
-				name : 'id',
-				isHeader:true	
-			}, {
-				display : '名称',
-				name : 'name',
-				isHeader:true,
-				isGeneral:true,
-				align : 'right'
-			},{
-				display : '备注',
-				name : 'remarks',
-				isConfigurable :true,
-				align : 'left'
-			}];
-			
-			var page_buttons = [ {
-				name : '详细',
-				bclass : 'operate details',
-				onpress : 'detail'
-			},{
-				name : '作废',
-				bclass : 'operate del',
-				onpress : 'writebackRecord'
-			} ];
-			
-			var page = {
-				id : "Sys_area",		
-				url : "${ctx}/sys/area/findPage",
-				dataType : 'json',
-				colModel : page_colmodel,
-				colModel_Detail : page_colmode_detail,
-				buttons : page_buttons,
-				sortname : 'BusiDate',
-				sortorder : 'desc',
-				usepager : true,
-				useRp : true,
-				rp : 10,
-				showTableToggleBtn : false,
-				width : 'auto',
-				height : 'auto',
-				setPageParams : 'getPageParams()'
-			};
-			myPage = page;
-			$("#resultList").flexigrid(page);
-			// DoMore();
-		}
-		
-		//打开新标签
-		function detail(i){
-			var data=getData(i);
-			var id = data.id;
-			window.open("${ctx}/sys/area/form?id="+id, '_self'); 
-		}
-		
-		function replaceTypeHtml(i){
-			var data = getData(i);
-			if(data!=null){
-				var type = data.type;
-				switch(type)
-				{
-				case "1":
-				 	 return "省份、直辖市";
-				case "2":
-				  	return "地市";
-				case "3":
-					return "区县";
+		function addRow(list, tpl, data, pid, root){
+			for (var i=0; i<data.length; i++){
+				var row = data[i];
+				if ((${fns:jsGetVal('row.parentId')}) == pid){
+					$(list).append(Mustache.render(tpl, {
+						dict: {
+							type: getDictLabel(${fns:toJson(fns:getDictList('sys_area_type'))}, row.type)
+						}, pid: (root?0:pid), row: row
+					}));
+					addRow(list, tpl, data, row.id);
 				}
 			}
-			return "";
 		}
 	</script>
 </head>
 <body>
-	<div class="whiteBoxNav">
-		<ul class="nav nav-tabs">
-			<li class="active"><a href="${ctx}/sys/area/list?id=${area.id}">地域列表</a></li>
-			<shiro:hasPermission name="sys:area:edit">
-				<li><a href="${ctx}/sys/area/importForm">地域导入</a></li>
-			</shiro:hasPermission>
-		</ul>
-	</div>
-	
-	<div class="clear"></div>
-	<div class="whiteBox actionArea">
-		<form action="" id="normalSearchForm">
-		<table border="0" cellpadding="0" cellspacing="0" width="100%">
-			<tbody><tr>
-				<td width="300" id="">
-					<a id="btnExport" class="button  withIcon"> <span class="icon exportIcon"></span>
-						<span class="text">导出</span>
-					</a>
-					<a id="btnImport" class="button  withIcon"> <span class="icon exportIcon"></span>
-						<span class="text">导入</span>
-					</a>
-				</td>
-				<td align="right" id="search">
-				<a onclick="switchSearch(this)" class="button fr">展开高级搜索</a>
-					<div class="search fr" style="display: block;">
-					    <a class="button fr mr10" onclick="parentCancelReload()">搜索</a>	
-						<input name="" type="text" id="SearchKeyWord" class="inputText fr mr5" title="搜索编号、名称" size="35" placeholder="搜索单号、账目类型、备注" maxlength="30" spellcheck="false" style="display: block;">
-					</div>
-				</td>
-			</tr></tbody>
-		</table>
-		</form>
-	</div>
-	
-	<div id="advancedSearchDiv" style="display: none;">
-		<form:form action="" id="advancedSearchForm" modelAttribute="area">
-			<table width="100%" border="0" cellspacing="0" cellpadding="20" class="expertSearch">
-				<tbody>
-				<tr>
-					<td style="border-right: 1px solid #d7d7d7;">
-						
-						<div class="value">
-							<div class="title" style="width: 65px; text-align: right">名称</div>
-							<div class="text">
-								<form:input path="name" htmlEscape="false" maxlength="50" class="inputText"/>
-							</div>
-						</div>
-						<div class="value">
-							<div class="title" style="width: 65px; text-align: right">编码</div>
-							<div class="text">
-								<form:input path="name" htmlEscape="false" maxlength="50" class="inputText"/>
-							</div>
-						</div>
-					</div></td>
-					<td valign="middle" align="center" width="200"><a href="javascript:;" class="button blueButton" onclick="parentCancelReload()">搜索</a> 
-						<a class="button" onclick="resetSearch()">清空搜索</a>
-					</td>
-				</tr>
-				</tbody>
-			</table>
-		</form:form>
-	</div>
-	
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="${ctx}/sys/area/">区域列表</a></li>
+		<shiro:hasPermission name="sys:area:edit"><li><a href="${ctx}/sys/area/form">区域添加</a></li></shiro:hasPermission>
+	</ul>
 	<sys:message content="${message}"/>
-	
-	<div class="clear"></div>
-	<div class="whiteBox actionArea">
-		<table id="resultList" style="border-top-width: 0px;" cellpadding="15" cellspacing="0" border="0" class="tableStyle table">
-		</table>
-	</div>
-	
+	<table id="treeTable" class="table table-striped table-bordered table-condensed">
+		<thead><tr><th>区域名称</th><th>区域编码</th><th>区域类型</th><th>备注</th><shiro:hasPermission name="sys:area:edit"><th>操作</th></shiro:hasPermission></tr></thead>
+		<tbody id="treeTableList"></tbody>
+	</table>
+	<script type="text/template" id="treeTableTpl">
+		<tr id="{{row.id}}" pId="{{pid}}">
+			<td><a href="${ctx}/sys/area/form?id={{row.id}}">{{row.name}}</a></td>
+			<td>{{row.code}}</td>
+			<td>{{dict.type}}</td>
+			<td>{{row.remarks}}</td>
+			<shiro:hasPermission name="sys:area:edit"><td>
+				<a href="${ctx}/sys/area/form?id={{row.id}}">修改</a>
+				<a href="${ctx}/sys/area/delete?id={{row.id}}" onclick="return confirmx('要删除该区域及所有子区域项吗？', this.href)">删除</a>
+				<a href="${ctx}/sys/area/form?parent.id={{row.id}}">添加下级区域</a> 
+			</td></shiro:hasPermission>
+		</tr>
+	</script>
 </body>
 </html>

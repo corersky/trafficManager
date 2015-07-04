@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -18,13 +19,14 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.yuandu.erp.common.config.Global;
 import com.yuandu.erp.common.servlet.ValidateCodeServlet;
 import com.yuandu.erp.common.utils.Encodes;
 import com.yuandu.erp.common.utils.SpringContextHolder;
-import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.Servlets;
 import com.yuandu.erp.modules.sys.entity.Menu;
 import com.yuandu.erp.modules.sys.entity.Role;
@@ -41,6 +43,8 @@ import com.yuandu.erp.modules.sys.web.LoginController;
 //@DependsOn({"userDao","roleDao","menuDao"})
 public class SystemAuthorizingRealm extends AuthorizingRealm {
 
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
 	private SystemService systemService;
 
 	/**
@@ -49,6 +53,11 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authcToken) {
 		UsernamePasswordToken token = (UsernamePasswordToken) authcToken;
+		
+		int activeSessionSize = getSystemService().getSessionDao().getActiveSessions(false).size();
+		if (logger.isDebugEnabled()){
+			logger.debug("login submit, active session size: {}, username: {}", activeSessionSize, token.getUsername());
+		}
 		
 		// 校验登录验证码
 		if (LoginController.isValidateCodeLogin(token.getUsername(), false, false)){
@@ -221,7 +230,7 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 //		private Map<String, Object> cacheMap;
 
 		public Principal(User user, boolean mobileLogin) {
-			this.id = ""+user.getId();
+			this.id = user.getId();
 			this.loginName = user.getLoginName();
 			this.name = user.getName();
 			this.mobileLogin = mobileLogin;
@@ -243,6 +252,14 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 			return mobileLogin;
 		}
 
+//		@JsonIgnore
+//		public Map<String, Object> getCacheMap() {
+//			if (cacheMap==null){
+//				cacheMap = new HashMap<String, Object>();
+//			}
+//			return cacheMap;
+//		}
+
 		/**
 		 * 获取SESSIONID
 		 */
@@ -256,7 +273,7 @@ public class SystemAuthorizingRealm extends AuthorizingRealm {
 		
 		@Override
 		public String toString() {
-			return id==null?"":id.toString();
+			return id;
 		}
 
 	}

@@ -2,6 +2,11 @@ package com.yuandu.erp.common.config;
 
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
+import org.springframework.web.context.ContextLoader;
+import org.springframework.web.context.WebApplicationContext;
+
 import com.google.common.collect.Maps;
 import com.yuandu.erp.common.utils.PropertiesLoader;
 import com.yuandu.erp.common.utils.StringUtils;
@@ -54,13 +59,19 @@ public class Global {
 	}
 	
 	/**
-	 * 是否是演示模式，演示模式下不能修改用户、角色、密码、菜单、授权
+	 * 在修改系统用户和角色时是否同步到Activiti
 	 */
-	public static Boolean isDemoMode() {
-		String dm = getConfig("demoMode");
+	public static Boolean isSynActivitiIndetity() {
+		String dm = getConfig("activiti.isSynActivitiIndetity");
 		return "true".equals(dm) || "1".equals(dm);
 	}
 	
+	/////////////////////////////////////////////////////////
+	
+	// 显示/隐藏
+	public static final String SHOW = "1";
+	public static final String HIDE = "0";
+
 	// 是/否
 	public static final String YES = "1";
 	public static final String NO = "0";
@@ -69,8 +80,7 @@ public class Global {
 	public static final String TRUE = "true";
 	public static final String FALSE = "false";
 	
-	public static final String USERFILES_BASE_URL = "/erp_data/";
-	public static final String USERFILES_TEMP_URL = "/temp/";
+	public static final String USERFILES_BASE_URL = "/userfiles/";
 
 	/**
 	 * 页面获取常量
@@ -83,6 +93,27 @@ public class Global {
 			// 异常代表无配置，这里什么也不做
 		}
 		return null;
+	}
+
+	/**
+	 * 获取上传文件的根目录
+	 * @return
+	 */
+	public static String getUserfilesBaseDir() {
+		String dir = getConfig("userfiles.basedir");
+		if (StringUtils.isBlank(dir)){
+			try {
+				WebApplicationContext webApplicationContext = ContextLoader.getCurrentWebApplicationContext();    
+		        ServletContext servletContext = webApplicationContext.getServletContext();  
+				dir = servletContext.getRealPath("/");
+			} catch (Exception e) {
+				return "";
+			}
+		}
+		if(!dir.endsWith("/")) {
+			dir += "/";
+		}
+		return dir;
 	}
 	
 }

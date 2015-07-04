@@ -14,14 +14,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.yuandu.erp.common.config.Global;
-import com.yuandu.erp.common.persistence.FlexPage;
-import com.yuandu.erp.common.utils.FileInptUtil;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
 import com.yuandu.erp.modules.sys.entity.Office;
@@ -43,7 +41,7 @@ public class UserController extends BaseController {
 	@ModelAttribute
 	public User get(@RequestParam(required=false) String id) {
 		if (StringUtils.isNotBlank(id)){
-			return systemService.getUser(StringUtils.toLong(id));
+			return systemService.getUser(id);
 		}else{
 			return new User();
 		}
@@ -58,16 +56,9 @@ public class UserController extends BaseController {
 	@RequiresPermissions("sys:user:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(User user, HttpServletRequest request, HttpServletResponse response, Model model) {
-		
-		model.addAttribute("user", user);
+		Page<User> page = systemService.findUser(new Page<User>(request, response), user);
+        model.addAttribute("page", page);
 		return "modules/sys/userList";
-	}
-	
-	@RequiresPermissions("sys:user:view")
-	@RequestMapping(value = "findPage")
-	public @ResponseBody FlexPage<User> findPage(User user,HttpServletRequest request, HttpServletResponse response, Model model) {
-		FlexPage<User> page = systemService.findUser(new FlexPage<User>(request, response), user);
-		return page;
 	}
 
 	@RequiresPermissions("sys:user:view")
@@ -87,15 +78,8 @@ public class UserController extends BaseController {
 	@RequiresPermissions("sys:user:edit")
 	@RequestMapping(value = "save")
 	public String save(User user, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/user/list?repage";
-		}
-		// 修正引用赋值问题，不知道为何，Company和Office引用的一个实例地址，修改了一个，另外一个跟着修改。
-		String company = request.getParameter("company.id");
-		String office = request.getParameter("office.id");
-		user.setCompany(new Office(StringUtils.toLong(company)));
-		user.setOffice(new Office(StringUtils.toLong(office)));
+		user.setCompany(new Office(request.getParameter("company.id")));
+		user.setOffice(new Office(request.getParameter("office.id")));
 		// 如果新密码为空，则不更换密码
 		if (StringUtils.isNotBlank(user.getNewPassword())) {
 			user.setPassword(SystemService.entryptPassword(user.getNewPassword()));
@@ -109,7 +93,7 @@ public class UserController extends BaseController {
 		}
 		// 角色数据有效性验证，过滤不在授权内的角色
 		List<Role> roleList = Lists.newArrayList();
-		List<Long> roleIdList = user.getRoleIdList();
+		List<String> roleIdList = user.getRoleIdList();
 		for (Role r : systemService.findAllRole()){
 			if (roleIdList.contains(r.getId())){
 				roleList.add(r);
@@ -130,10 +114,6 @@ public class UserController extends BaseController {
 	@RequiresPermissions("sys:user:edit")
 	@RequestMapping(value = "delete")
 	public String delete(User user, RedirectAttributes redirectAttributes) {
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/user/list?repage";
-		}
 		if (UserUtils.getUser().getId().equals(user.getId())){
 			addMessage(redirectAttributes, "删除用户失败, 不允许删除当前用户");
 		}else if (User.isAdmin(user.getId())){
@@ -175,10 +155,6 @@ public class UserController extends BaseController {
 	public String info(User user, HttpServletResponse response, Model model) {
 		User currentUser = UserUtils.getUser();
 		if (StringUtils.isNotBlank(user.getName())){
-			if(Global.isDemoMode()){
-				model.addAttribute("message", "演示模式，不允许操作！");
-				return "modules/sys/userInfo";
-			}
 			currentUser.setEmail(user.getEmail());
 			currentUser.setPhone(user.getPhone());
 			currentUser.setMobile(user.getMobile());
@@ -215,10 +191,6 @@ public class UserController extends BaseController {
 	public String modifyPwd(String oldPassword, String newPassword, Model model) {
 		User user = UserUtils.getUser();
 		if (StringUtils.isNotBlank(oldPassword) && StringUtils.isNotBlank(newPassword)){
-			if(Global.isDemoMode()){
-				model.addAttribute("message", "演示模式，不允许操作！");
-				return "modules/sys/userModifyPwd";
-			}
 			if (SystemService.validatePassword(oldPassword, user.getPassword())){
 				systemService.updatePasswordById(user.getId(), user.getLoginName(), newPassword);
 				model.addAttribute("message", "修改密码成功");
@@ -233,7 +205,7 @@ public class UserController extends BaseController {
 	@RequiresPermissions("user")
 	@ResponseBody
 	@RequestMapping(value = "treeData")
-	public List<Map<String, Object>> treeData(@RequestParam(required=false) Long officeId, HttpServletResponse response) {
+	public List<Map<String, Object>> treeData(@RequestParam(required=false) String officeId, HttpServletResponse response) {
 		List<Map<String, Object>> mapList = Lists.newArrayList();
 		List<User> list = systemService.findUserByOfficeId(officeId);
 		for (int i=0; i<list.size(); i++){
@@ -245,16 +217,6 @@ public class UserController extends BaseController {
 			mapList.add(map);
 		}
 		return mapList;
-	}
-	
-	@RequiresPermissions("sys:area:edit")
-	@RequestMapping(value = "importExcel")
-	public @ResponseBody FileInptUtil importExcel(@RequestParam(value = "photo") MultipartFile file,  
-            HttpServletRequest request, HttpServletResponse response) {  
-		
-		FileInptUtil result = FileInptUtil.fileUpload(file, "userIcon");
-	    
-	    return result;
 	}
     
 }

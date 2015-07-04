@@ -3,7 +3,6 @@ package com.yuandu.erp.modules.sys.web;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -19,8 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.yuandu.erp.common.config.Global;
-import com.yuandu.erp.common.persistence.FlexPage;
-import com.yuandu.erp.common.utils.LongUtils;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
 import com.yuandu.erp.modules.sys.entity.Office;
@@ -39,48 +36,27 @@ public class OfficeController extends BaseController {
 	@Autowired
 	private OfficeService officeService;
 	
-	@ModelAttribute
+	@ModelAttribute("office")
 	public Office get(@RequestParam(required=false) String id) {
 		if (StringUtils.isNotBlank(id)){
-			return officeService.get(StringUtils.toLong(id));
-		}else{
-			return new Office();
-		}
-	}
-	
-	/**
-	 * 获取一条数据
-	 * @param id
-	 * @return
-	 */
-	@RequiresPermissions("sys:office:view")
-	@RequestMapping(value = "find")
-	public @ResponseBody Office find(@RequestParam(required=false) String id) {
-		if (StringUtils.isNotBlank(id)){
-			return officeService.get(StringUtils.toLong(id));
+			return officeService.get(id);
 		}else{
 			return new Office();
 		}
 	}
 
 	@RequiresPermissions("sys:office:view")
-	@RequestMapping(value = {"index"})
+	@RequestMapping(value = {""})
 	public String index(Office office, Model model) {
+//        model.addAttribute("list", officeService.findAll());
 		return "modules/sys/officeIndex";
 	}
 
 	@RequiresPermissions("sys:office:view")
-	@RequestMapping(value = {"list", ""})
-	public String list(Office office,HttpServletRequest request, HttpServletResponse response, Model model) {
-		model.addAttribute("office", office);
+	@RequestMapping(value = {"list"})
+	public String list(Office office, Model model) {
+        model.addAttribute("list", officeService.findList(office));
 		return "modules/sys/officeList";
-	}
-	
-	@RequiresPermissions("sys:office:view")
-	@RequestMapping(value = "findPage")
-	public @ResponseBody FlexPage<Office> findPage(Office office,HttpServletRequest request, HttpServletResponse response, Model model) {
-		FlexPage<Office> page = officeService.findPage(new FlexPage<Office>(request, response), office); 
-		return page;
 	}
 	
 	@RequiresPermissions("sys:office:view")
@@ -95,7 +71,7 @@ public class OfficeController extends BaseController {
 			office.setArea(user.getOffice().getArea());
 		}
 		// 自动获取排序号
-		if (LongUtils.isBlank(office.getId())&&office.getParent()!=null){
+		if (StringUtils.isBlank(office.getId())&&office.getParent()!=null){
 			int size = 0;
 			List<Office> list = officeService.findAll();
 			for (int i=0; i<list.size(); i++){
@@ -134,8 +110,8 @@ public class OfficeController extends BaseController {
 		}
 		
 		addMessage(redirectAttributes, "保存机构'" + office.getName() + "'成功");
-	//	Long id = 0==office.getParentId() ? 0 : office.getParentId();
-		return "redirect:" + adminPath + "/sys/office/list";
+		String id = "0".equals(office.getParentId()) ? "" : office.getParentId();
+		return "redirect:" + adminPath + "/sys/office/list?id="+id+"&parentIds="+office.getParentIds();
 	}
 	
 	@RequiresPermissions("sys:office:edit")
@@ -143,7 +119,7 @@ public class OfficeController extends BaseController {
 	public String delete(Office office, RedirectAttributes redirectAttributes) {
 		officeService.delete(office);
 		addMessage(redirectAttributes, "删除机构成功");
-		return "redirect:" + adminPath + "/sys/office/list?id="+office.getParentId();
+		return "redirect:" + adminPath + "/sys/office/list?id="+office.getParentId()+"&parentIds="+office.getParentIds();
 	}
 
 	/**
@@ -157,26 +133,16 @@ public class OfficeController extends BaseController {
 	@RequiresPermissions("user")
 	@ResponseBody
 	@RequestMapping(value = "treeData")
-	public List<Map<String, Object>> treeData(@RequestParam(required=false) String extId, @RequestParam(required=false) String type,@RequestParam(required=false) String actType,
-			@RequestParam(required=false) Long grade, @RequestParam(required=false) Boolean isAll, @RequestParam(required=false) Boolean isMyCompany, HttpServletResponse response) {
+	public List<Map<String, Object>> treeData(@RequestParam(required=false) String extId, @RequestParam(required=false) String type,
+			@RequestParam(required=false) Long grade, @RequestParam(required=false) Boolean isAll, HttpServletResponse response) {
 		List<Map<String, Object>> mapList = Lists.newArrayList();
 		List<Office> list = officeService.findList(isAll);
 		for (int i=0; i<list.size(); i++){
 			Office e = list.get(i);
-			if ((StringUtils.isBlank(extId) || (extId!=null && !extId.equals(e.getId())))
+			if ((StringUtils.isBlank(extId) || (extId!=null && !extId.equals(e.getId()) && e.getParentIds().indexOf(","+extId+",")==-1))
 					&& (type == null || (type != null && (type.equals("1") ? type.equals(e.getType()) : true)))
 					&& (grade == null || (grade != null && Integer.parseInt(e.getGrade()) <= grade.intValue()))
-					&& Global.YES.equals(e.getUseable())
-					&& (actType == null || "many".equals(e.getActType()) || (actType != null && actType.equals(e.getActType())))
-				){
-				
-				if(isMyCompany!=null&&isMyCompany){//本公司机构
-					String company = ","+UserUtils.getUser().getCompany().getId()+",";
-					if(!e.getParentIds().contains(company)&&
-							e.getId().compareTo(UserUtils.getUser().getCompany().getId())!=0){
-						continue;//只获取本公司
-					}
-				}
+					&& Global.YES.equals(e.getUseable())){
 				Map<String, Object> map = Maps.newHashMap();
 				map.put("id", e.getId());
 				map.put("pId", e.getParentId());

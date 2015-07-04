@@ -1,8 +1,5 @@
 package com.yuandu.erp.common.persistence.interceptor;
 
-import java.sql.Connection;
-import java.util.Properties;
-
 import org.apache.ibatis.executor.statement.BaseStatementHandler;
 import org.apache.ibatis.executor.statement.RoutingStatementHandler;
 import org.apache.ibatis.executor.statement.StatementHandler;
@@ -13,8 +10,11 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.utils.Reflections;
+
+import java.sql.Connection;
+import java.util.Properties;
 
 /**
  * Mybatis数据库分页插件，拦截StatementHandler的prepare方法
@@ -51,9 +51,9 @@ public class PreparePaginationInterceptor extends BaseInterceptor {
                     final String sql = boundSql.getSql();
                     //记录统计
                     final int count = SQLHelper.getCount(sql, connection, mappedStatement, parameterObject, boundSql, log);
-                    FlexPage<Object> page = null;
+                    Page<Object> page = null;
                     page = convertParameter(parameterObject, page);
-                    page.setTotal(count);
+                    page.setCount(count);
                     String pagingSql = SQLHelper.generatePageSql(sql, page, DIALECT);
                     if (log.isDebugEnabled()) {
                         log.debug("PAGE SQL:" + pagingSql);

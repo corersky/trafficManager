@@ -1,14 +1,10 @@
 package com.yuandu.erp.common.web;
 
 import java.beans.PropertyEditorSupport;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
@@ -21,12 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.yuandu.erp.common.beanvalidator.BeanValidators;
@@ -73,18 +67,6 @@ public abstract class BaseController {
 		return true;
 	}
 	
-	protected boolean beanValidator(ModelMap model, Object object, Class<?>... groups) {
-		try{
-			BeanValidators.validateWithException(validator, object, groups);
-		}catch(ConstraintViolationException ex){
-			List<String> list = BeanValidators.extractPropertyAndMessageAsList(ex, ": ");
-			list.add(0, "数据验证失败：");
-			addMessage(model, list.toArray(new String[]{}));
-			return false;
-		}
-		return true;
-	}
-	
 	/**
 	 * 服务端参数有效性验证
 	 * @param object 验证的实体对象
@@ -118,14 +100,6 @@ public abstract class BaseController {
 	 * @param message
 	 */
 	protected void addMessage(Model model, String... messages) {
-		StringBuilder sb = new StringBuilder();
-		for (String message : messages){
-			sb.append(message).append(messages.length>1?"<br/>":"");
-		}
-		model.addAttribute("message", sb.toString());
-	}
-	
-	protected void addMessage(ModelMap model, String... messages) {
 		StringBuilder sb = new StringBuilder();
 		for (String message : messages){
 			sb.append(message).append(messages.length>1?"<br/>":"");
@@ -214,52 +188,12 @@ public abstract class BaseController {
 			public void setAsText(String text) {
 				setValue(DateUtils.parseDate(text));
 			}
+//			@Override
+//			public String getAsText() {
+//				Object value = getValue();
+//				return value != null ? DateUtils.formatDateTime((Date)value) : "";
+//			}
 		});
 	}
-	
-	/**
-	 * 文件流
-	 * @param fileName
-	 * @param request
-	 * @param response
-	 */
-	public @ResponseBody void putResFileStream(String fileName,HttpServletRequest request, HttpServletResponse response){
-		
-		try {
-			request.setCharacterEncoding("utf-8");
-			response.setContentType("image/png");
-
-			File img = new File(fileName);
-			FileInputStream fos = new FileInputStream(img);
-			BufferedOutputStream outs = new BufferedOutputStream(
-					response.getOutputStream());
-			int readBytes = 0;
-			byte[] buffer = new byte[10000];
-			while ((readBytes = fos.read(buffer, 0, 10000)) != -1) {
-				outs.write(buffer, 0, readBytes);
-			}
-			buffer = null;
-			outs.close();
-			fos.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-      
-	}
-	
-	/**
-	 * 将entity初始化为view实体
-	 * view负责显示页面
-	 * @param entity
-	 *//*
-	protected abstract void entity2View(Object entity);
-	
-	*//**
-	 * 将entity初始化为view实体
-	 * view负责显示页面
-	 * @param entity
-	 *//*
-	protected abstract void entity2View(List<Object> list);*/
 	
 }

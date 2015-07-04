@@ -48,11 +48,13 @@
 	
 	<insert id="insert">
 		INSERT INTO oa_notify_record(
+			ID,
 			OA_NOTIFY_ID,
 			USER_ID,
 			READ_FLAG,
 			READ_DATE
 		) VALUES (
+			#{id},
 			#{oaNotify.id},
 			#{user.id},
 			#{readFlag},
@@ -62,6 +64,7 @@
 	
 	<insert id="insertAll" parameterType="List">
 		INSERT INTO oa_notify_record(
+			ID,
 			OA_NOTIFY_ID,
 			USER_ID,
 			READ_FLAG,
@@ -69,6 +72,7 @@
 		)
 		<foreach collection="list" item="e" separator=" UNION ALL ">
 			SELECT
+				#{e.id},
 				#{e.oaNotify.id},
 				#{e.user.id},
 				#{e.readFlag},

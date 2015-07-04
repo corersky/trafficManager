@@ -22,7 +22,7 @@ public class OaNotifyRecord extends DataEntity<OaNotifyRecord> {
 		super();
 	}
 
-	public OaNotifyRecord(Long id){
+	public OaNotifyRecord(String id){
 		super(id);
 	}
 	

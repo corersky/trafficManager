@@ -32,7 +32,6 @@ public class Servlets {
 	public static final long ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 	
 	// 静态文件后缀
-	@SuppressWarnings("unused")
 	private final static String[] staticFiles = StringUtils.split(Global.getConfig("web.staticFile"), ",");
 	
 	/**

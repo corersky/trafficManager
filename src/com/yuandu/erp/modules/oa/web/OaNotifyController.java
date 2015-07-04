@@ -11,14 +11,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.yuandu.erp.common.persistence.FlexPage;
-import com.yuandu.erp.common.utils.FileInptUtil;
-import com.yuandu.erp.common.utils.LongUtils;
-import com.yuandu.erp.common.utils.StringUtils;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.web.BaseController;
+import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.oa.entity.OaNotify;
 import com.yuandu.erp.modules.oa.service.OaNotifyService;
 
@@ -36,7 +33,7 @@ public class OaNotifyController extends BaseController {
 	public OaNotify get(@RequestParam(required=false) String id) {
 		OaNotify entity = null;
 		if (StringUtils.isNotBlank(id)){
-			entity = oaNotifyService.get(StringUtils.toLong(id));
+			entity = oaNotifyService.get(id);
 		}
 		if (entity == null){
 			entity = new OaNotify();
@@ -47,22 +44,15 @@ public class OaNotifyController extends BaseController {
 	@RequiresPermissions("oa:oaNotify:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(OaNotify oaNotify, HttpServletRequest request, HttpServletResponse response, Model model) {
-		
-		model.addAttribute("oaNotify", oaNotify);
+		Page<OaNotify> page = oaNotifyService.find(new Page<OaNotify>(request, response), oaNotify);
+		model.addAttribute("page", page);
 		return "modules/oa/oaNotifyList";
-	}
-	
-	@RequiresPermissions("oa:oaNotify:view")
-	@RequestMapping(value = "findPage")
-	public @ResponseBody FlexPage<OaNotify> findPage(OaNotify oaNotify,HttpServletRequest request, HttpServletResponse response, Model model) {
-		FlexPage<OaNotify> page = oaNotifyService.find(new FlexPage<OaNotify>(request, response), oaNotify);
-		return page;
 	}
 
 	@RequiresPermissions("oa:oaNotify:view")
 	@RequestMapping(value = "form")
 	public String form(OaNotify oaNotify, Model model) {
-		if (LongUtils.isNotBlank(oaNotify.getId())){
+		if (StringUtils.isNotBlank(oaNotify.getId())){
 			oaNotify = oaNotifyService.getRecordList(oaNotify);
 		}
 		model.addAttribute("oaNotify", oaNotify);
@@ -71,22 +61,18 @@ public class OaNotifyController extends BaseController {
 
 	@RequiresPermissions("oa:oaNotify:edit")
 	@RequestMapping(value = "save")
-	public String save(OaNotify oaNotify, Model model,@RequestParam(value="file",required=false) MultipartFile file, RedirectAttributes redirectAttributes) {
+	public String save(OaNotify oaNotify, Model model, RedirectAttributes redirectAttributes) {
 		if (!beanValidator(model, oaNotify)){
 			return form(oaNotify, model);
 		}
 		// 如果是修改，则状态为已发布，则不能再进行操作
-		if (LongUtils.isNotBlank(oaNotify.getId())){
+		if (StringUtils.isNotBlank(oaNotify.getId())){
 			OaNotify e = oaNotifyService.get(oaNotify.getId());
 			if ("1".equals(e.getStatus())){
 				addMessage(redirectAttributes, "已发布，不能操作！");
 				return "redirect:" + adminPath + "/oa/oaNotify/form?id="+oaNotify.getId();
 			}
 		}
-		//上传zip
-		FileInptUtil info = FileInptUtil.fileUpload(file, "notifyZip");
-		oaNotify.setFiles(info.getPath());
-		
 		oaNotifyService.save(oaNotify);
 		addMessage(redirectAttributes, "保存通知'" + oaNotify.getTitle() + "'成功");
 		return "redirect:" + adminPath + "/oa/oaNotify/?repage";
@@ -106,8 +92,8 @@ public class OaNotifyController extends BaseController {
 	@RequestMapping(value = "self")
 	public String selfList(OaNotify oaNotify, HttpServletRequest request, HttpServletResponse response, Model model) {
 		oaNotify.setSelf(true);
-		FlexPage<OaNotify> page = oaNotifyService.find(new FlexPage<OaNotify>(request, response), oaNotify); 
-		model.addAttribute("pages", page);
+		Page<OaNotify> page = oaNotifyService.find(new Page<OaNotify>(request, response), oaNotify); 
+		model.addAttribute("page", page);
 		return "modules/oa/oaNotifyList";
 	}
 
@@ -117,9 +103,9 @@ public class OaNotifyController extends BaseController {
 	@RequiresPermissions("oa:oaNotify:view")
 	@RequestMapping(value = "selfData")
 	@ResponseBody
-	public FlexPage<OaNotify> listData(OaNotify oaNotify, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public Page<OaNotify> listData(OaNotify oaNotify, HttpServletRequest request, HttpServletResponse response, Model model) {
 		oaNotify.setSelf(true);
-		FlexPage<OaNotify> page = oaNotifyService.find(new FlexPage<OaNotify>(request, response), oaNotify);
+		Page<OaNotify> page = oaNotifyService.find(new Page<OaNotify>(request, response), oaNotify);
 		return page;
 	}
 	
@@ -128,7 +114,7 @@ public class OaNotifyController extends BaseController {
 	 */
 	@RequestMapping(value = "view")
 	public String view(OaNotify oaNotify, Model model) {
-		if (LongUtils.isNotBlank(oaNotify.getId())){
+		if (StringUtils.isNotBlank(oaNotify.getId())){
 			oaNotifyService.updateReadFlag(oaNotify);
 			oaNotify = oaNotifyService.getRecordList(oaNotify);
 			model.addAttribute("oaNotify", oaNotify);
@@ -143,7 +129,7 @@ public class OaNotifyController extends BaseController {
 	@RequestMapping(value = "viewData")
 	@ResponseBody
 	public OaNotify viewData(OaNotify oaNotify, Model model) {
-		if (LongUtils.isNotBlank(oaNotify.getId())){
+		if (StringUtils.isNotBlank(oaNotify.getId())){
 			oaNotifyService.updateReadFlag(oaNotify);
 			return oaNotify;
 		}
@@ -156,7 +142,7 @@ public class OaNotifyController extends BaseController {
 	@RequestMapping(value = "viewRecordData")
 	@ResponseBody
 	public OaNotify viewRecordData(OaNotify oaNotify, Model model) {
-		if (LongUtils.isNotBlank(oaNotify.getId())){
+		if (StringUtils.isNotBlank(oaNotify.getId())){
 			oaNotify = oaNotifyService.getRecordList(oaNotify);
 			return oaNotify;
 		}

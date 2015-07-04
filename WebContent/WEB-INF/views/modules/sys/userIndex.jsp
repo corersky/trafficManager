@@ -34,7 +34,7 @@
 		
 		function refreshTree(){
 			$.getJSON("${ctx}/sys/office/treeData",function(data){
-				$.fn.zTree.init($("#ztree"), setting, data).expandAll(false);
+				$.fn.zTree.init($("#ztree"), setting, data).expandAll(true);
 			});
 		}
 		refreshTree();

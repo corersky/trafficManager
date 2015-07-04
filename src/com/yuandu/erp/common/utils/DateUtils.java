@@ -165,10 +165,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 		return (afterTime - beforeTime) / (1000 * 60 * 60 * 24);
 	}
 	
-	public static String formateYMDTime(){
-		return DateFormatUtils.format(new Date(), "yyyyMMdd");
-	}
-	
 	/**
 	 * @param args
 	 * @throws ParseException

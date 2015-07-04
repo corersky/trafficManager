@@ -1,8 +1,6 @@
 package com.yuandu.erp.modules.sys.utils;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
@@ -10,10 +8,10 @@ import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 
-import com.yuandu.erp.common.service.BaseService;
 import com.yuandu.erp.common.utils.CacheUtils;
 import com.yuandu.erp.common.utils.SpringContextHolder;
-import com.yuandu.erp.common.utils.StringUtils;
+import com.yuandu.erp.common.service.BaseService;
+import com.yuandu.erp.modules.sys.dao.AreaDao;
 import com.yuandu.erp.modules.sys.dao.MenuDao;
 import com.yuandu.erp.modules.sys.dao.OfficeDao;
 import com.yuandu.erp.modules.sys.dao.RoleDao;
@@ -24,7 +22,6 @@ import com.yuandu.erp.modules.sys.entity.Office;
 import com.yuandu.erp.modules.sys.entity.Role;
 import com.yuandu.erp.modules.sys.entity.User;
 import com.yuandu.erp.modules.sys.security.SystemAuthorizingRealm.Principal;
-import com.yuandu.erp.modules.sys.service.AreaService;
 
 /**
  * 用户工具类
@@ -34,6 +31,7 @@ public class UserUtils {
 	private static UserDao userDao = SpringContextHolder.getBean(UserDao.class);
 	private static RoleDao roleDao = SpringContextHolder.getBean(RoleDao.class);
 	private static MenuDao menuDao = SpringContextHolder.getBean(MenuDao.class);
+	private static AreaDao areaDao = SpringContextHolder.getBean(AreaDao.class);
 	private static OfficeDao officeDao = SpringContextHolder.getBean(OfficeDao.class);
 
 	public static final String USER_CACHE = "userCache";
@@ -46,15 +44,13 @@ public class UserUtils {
 	public static final String CACHE_AREA_LIST = "areaList";
 	public static final String CACHE_OFFICE_LIST = "officeList";
 	public static final String CACHE_OFFICE_ALL_LIST = "officeAllList";
-	public static final String CACHE_MERCHANT_LIST = "merchantList";
-	public static final String CACHE_MERCHANT_ALL_LIST = "merchantAllList";
 	
 	/**
 	 * 根据ID获取用户
 	 * @param id
 	 * @return 取不到返回null
 	 */
-	public static User get(Long id){
+	public static User get(String id){
 		User user = (User)CacheUtils.get(USER_CACHE, USER_CACHE_ID_ + id);
 		if (user ==  null){
 			user = userDao.get(id);
@@ -119,7 +115,7 @@ public class UserUtils {
 	public static User getUser(){
 		Principal principal = getPrincipal();
 		if (principal!=null){
-			User user = get(StringUtils.toLong(principal.getId()));
+			User user = get(principal.getId());
 			if (user != null){
 				return user;
 			}
@@ -176,11 +172,10 @@ public class UserUtils {
 	 * @return
 	 */
 	public static List<Area> getAreaList(){
-		AreaService areaService = (AreaService) SpringContextHolder.getBean(AreaService.class);
 		@SuppressWarnings("unchecked")
 		List<Area> areaList = (List<Area>)getCache(CACHE_AREA_LIST);
 		if (areaList == null){
-			areaList = areaService.findAll();
+			areaList = areaDao.findAllList(new Area());
 			putCache(CACHE_AREA_LIST, areaList);
 		}
 		return areaList;
@@ -202,37 +197,9 @@ public class UserUtils {
 				office.getSqlMap().put("dsf", BaseService.dataScopeFilter(user, "a", ""));
 				officeList = officeDao.findList(office);
 			}
-			validateActType(officeList);
 			putCache(CACHE_OFFICE_LIST, officeList);
 		}
 		return officeList;
-	}
-	
-	/**
-	 * 对机构进行工作流类型设置
-	 * @param officeList
-	 */
-	private static void validateActType(List<Office> officeList){
-		Map<String,String> ids = new HashMap<String,String> ();
-		//对cache进行处理
-		for(Office office:officeList){
-			if(office.getActType()!=null){
-				String[] parents = office.getParentIds().split(",");
-				for(String parent:parents){
-					if(ids.containsKey(parent)&&!ids.get(parent).equals(office.getActType())){
-						ids.put(parent, "many");
-					}else{
-						ids.put(parent, office.getActType()+"");
-					}
-				}
-			}
-		}
-		for(Office office:officeList){
-			String id = office.getId()+"";
-			if(ids.containsKey(id)){
-				office.setActType(ids.get(id));
-			}
-		}
 	}
 
 	/**
@@ -244,8 +211,6 @@ public class UserUtils {
 		List<Office> officeList = (List<Office>)getCache(CACHE_OFFICE_ALL_LIST);
 		if (officeList == null){
 			officeList = officeDao.findAllList(new Office());
-			validateActType(officeList);
-			putCache(CACHE_OFFICE_ALL_LIST, officeList);
 		}
 		return officeList;
 	}
@@ -267,6 +232,7 @@ public class UserUtils {
 			if (principal != null){
 				return principal;
 			}
+//			subject.logout();
 		}catch (UnavailableSecurityManagerException e) {
 			
 		}catch (InvalidSessionException e){
@@ -285,6 +251,7 @@ public class UserUtils {
 			if (session != null){
 				return session;
 			}
+//			subject.logout();
 		}catch (InvalidSessionException e){
 			
 		}
@@ -298,16 +265,27 @@ public class UserUtils {
 	}
 	
 	public static Object getCache(String key, Object defaultValue) {
+//		Object obj = getCacheMap().get(key);
 		Object obj = getSession().getAttribute(key);
 		return obj==null?defaultValue:obj;
 	}
 
 	public static void putCache(String key, Object value) {
+//		getCacheMap().put(key, value);
 		getSession().setAttribute(key, value);
 	}
 
 	public static void removeCache(String key) {
+//		getCacheMap().remove(key);
 		getSession().removeAttribute(key);
 	}
+	
+//	public static Map<String, Object> getCacheMap(){
+//		Principal principal = getPrincipal();
+//		if(principal!=null){
+//			return principal.getCacheMap();
+//		}
+//		return new HashMap<String, Object>();
+//	}
 	
 }

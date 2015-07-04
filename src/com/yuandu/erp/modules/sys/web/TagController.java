@@ -16,7 +16,6 @@ import com.yuandu.erp.common.web.BaseController;
 @RequestMapping(value = "${adminPath}/tag")
 public class TagController extends BaseController {
 	
-	
 	/**
 	 * 树结构选择标签（treeselect.tag）
 	 */
@@ -28,11 +27,7 @@ public class TagController extends BaseController {
 		model.addAttribute("checked", request.getParameter("checked")); // 是否可复选
 		model.addAttribute("selectIds", request.getParameter("selectIds")); // 指定默认选中的ID
 		model.addAttribute("isAll", request.getParameter("isAll")); 	// 是否读取全部数据，不进行权限过滤
-		model.addAttribute("isMyCompany", request.getParameter("isMyCompany")); // 是否本公司数据（仅office使用）
 		model.addAttribute("module", request.getParameter("module"));	// 过滤栏目模型（仅针对CMS的Category树）
-		model.addAttribute("includIds",request.getParameter("includIds"));//id范围过滤
-		model.addAttribute("storageId",request.getParameter("storageId"));
-		model.addAttribute("type", request.getParameter("type"));
 		return "modules/sys/tagTreeselect";
 	}
 	

@@ -1,7 +1,5 @@
 package com.yuandu.erp.common.persistence.interceptor;
 
-import java.util.Properties;
-
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -13,8 +11,10 @@ import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.utils.StringUtils;
+
+import java.util.Properties;
 
 /**
  * 数据库分页插件，只拦截查询语句.
@@ -30,18 +30,21 @@ public class PaginationInterceptor extends BaseInterceptor {
 
         final MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
         
+//        //拦截需要分页的SQL
+////        if (mappedStatement.getId().matches(_SQL_PATTERN)) {
+//        if (StringUtils.indexOfIgnoreCase(mappedStatement.getId(), _SQL_PATTERN) != -1) {
             Object parameter = invocation.getArgs()[1];
             BoundSql boundSql = mappedStatement.getBoundSql(parameter);
             Object parameterObject = boundSql.getParameterObject();
 
             //获取分页参数对象
-            FlexPage<Object> page = null;
+            Page<Object> page = null;
             if (parameterObject != null) {
                 page = convertParameter(parameterObject, page);
             }
 
             //如果设置了分页对象，则进行分页
-            if (page != null && page.getPagesize() != -1) {
+            if (page != null && page.getPageSize() != -1) {
 
             	if (StringUtils.isBlank(boundSql.getSql())){
                     return null;
@@ -49,8 +52,7 @@ public class PaginationInterceptor extends BaseInterceptor {
                 String originalSql = boundSql.getSql().trim();
             	
                 //得到总记录数
-                page.setTotal(SQLHelper.getCount(originalSql, null, mappedStatement, parameterObject, boundSql, log));
-                
+                page.setCount(SQLHelper.getCount(originalSql, null, mappedStatement, parameterObject, boundSql, log));
 
                 //分页查询 本地化对象 修改数据库注意修改实现
                 String pageSql = SQLHelper.generatePageSql(originalSql, page, DIALECT);

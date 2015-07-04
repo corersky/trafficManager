@@ -15,9 +15,8 @@
 		a.UPDATE_DATE AS "updateDate",
 		a.REMARKS AS "remarks",
 		a.DEL_FLAG AS "delFlag",
-	    b.read_num AS "readNum",
-	    b.un_read_num AS "unReadNum",
-	    u.name AS "createBy.name"
+	    b.read_num,
+	    b.un_read_num
 	</sql>
 	
 	<sql id="oaNotifyJoins">
@@ -28,7 +27,6 @@
                    sum(case when r.read_flag != '1' then 1 else 0 end) un_read_num 
             FROM oa_notify_record r GROUP BY r.oa_notify_id
     	) b ON b.oa_notify_id = a.id
-    	LEFT JOIN sys_user u ON u.id = a.create_by
 	</sql>
     
 	<select id="get" resultType="OaNotify">
@@ -92,8 +90,9 @@
 		</if>
 	</select>
 	
-	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+	<insert id="insert">
 		INSERT INTO oa_notify(
+			ID,
 			TYPE,
 			TITLE,
 			CONTENT,
@@ -106,6 +105,7 @@
 			REMARKS,
 			DEL_FLAG
 		) VALUES (
+			#{id},
 			#{type},
 			#{title},
 			#{content},

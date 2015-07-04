@@ -17,8 +17,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.yuandu.erp.common.config.Global;
-import com.yuandu.erp.common.utils.LongUtils;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
 import com.yuandu.erp.modules.sys.entity.Menu;
@@ -38,7 +36,7 @@ public class MenuController extends BaseController {
 	@ModelAttribute("menu")
 	public Menu get(@RequestParam(required=false) String id) {
 		if (StringUtils.isNotBlank(id)){
-			return systemService.getMenu(StringUtils.toLong(id));
+			return systemService.getMenu(id);
 		}else{
 			return new Menu();
 		}
@@ -62,7 +60,7 @@ public class MenuController extends BaseController {
 		}
 		menu.setParent(systemService.getMenu(menu.getParent().getId()));
 		// 获取排序号，最末节点排序号+30
-		if (LongUtils.isBlank(menu.getId())){
+		if (StringUtils.isBlank(menu.getId())){
 			List<Menu> list = Lists.newArrayList();
 			List<Menu> sourcelist = systemService.findAllMenu();
 			Menu.sortList(list, sourcelist, menu.getParentId(), false);
@@ -81,10 +79,6 @@ public class MenuController extends BaseController {
 			addMessage(redirectAttributes, "越权操作，只有超级管理员才能添加或修改数据！");
 			return "redirect:" + adminPath + "/sys/role/?repage";
 		}
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/menu/";
-		}
 		if (!beanValidator(model, menu)){
 			return form(menu, model);
 		}
@@ -96,16 +90,8 @@ public class MenuController extends BaseController {
 	@RequiresPermissions("sys:menu:edit")
 	@RequestMapping(value = "delete")
 	public String delete(Menu menu, RedirectAttributes redirectAttributes) {
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/menu/";
-		}
-//		if (Menu.isRoot(id)){
-//			addMessage(redirectAttributes, "删除菜单失败, 不允许删除顶级菜单或编号为空");
-//		}else{
-			systemService.deleteMenu(menu);
-			addMessage(redirectAttributes, "删除菜单成功");
-//		}
+		systemService.deleteMenu(menu);
+		addMessage(redirectAttributes, "删除菜单成功");
 		return "redirect:" + adminPath + "/sys/menu/";
 	}
 
@@ -128,12 +114,8 @@ public class MenuController extends BaseController {
 	@RequiresPermissions("sys:menu:edit")
 	@RequestMapping(value = "updateSort")
 	public String updateSort(String[] ids, Integer[] sorts, RedirectAttributes redirectAttributes) {
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/menu/";
-		}
     	for (int i = 0; i < ids.length; i++) {
-    		Menu menu = new Menu(StringUtils.toLong(ids[i]));
+    		Menu menu = new Menu(ids[i]);
     		menu.setSort(sorts[i]);
     		systemService.updateMenuSort(menu);
     	}

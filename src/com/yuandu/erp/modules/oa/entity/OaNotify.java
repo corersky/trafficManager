@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import com.google.common.collect.Lists;
 import com.yuandu.erp.common.persistence.DataEntity;
 import com.yuandu.erp.common.utils.Collections3;
+import com.yuandu.erp.common.utils.IdGen;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.sys.entity.User;
 
@@ -35,7 +36,7 @@ public class OaNotify extends DataEntity<OaNotify> {
 		super();
 	}
 
-	public OaNotify(Long id){
+	public OaNotify(String id){
 		super(id);
 	}
 
@@ -123,8 +124,9 @@ public class OaNotify extends DataEntity<OaNotify> {
 		this.oaNotifyRecordList = Lists.newArrayList();
 		for (String id : StringUtils.split(oaNotifyRecord, ",")){
 			OaNotifyRecord entity = new OaNotifyRecord();
+			entity.setId(IdGen.uuid());
 			entity.setOaNotify(this);
-			entity.setUser(new User(StringUtils.toLong(id)));
+			entity.setUser(new User(id));
 			entity.setReadFlag("0");
 			this.oaNotifyRecordList.add(entity);
 		}

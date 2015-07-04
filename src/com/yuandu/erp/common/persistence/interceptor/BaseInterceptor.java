@@ -1,17 +1,17 @@
 package com.yuandu.erp.common.persistence.interceptor;
 
-import java.io.Serializable;
-import java.util.Properties;
-
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.plugin.Interceptor;
 
 import com.yuandu.erp.common.config.Global;
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.persistence.dialect.Dialect;
 import com.yuandu.erp.common.persistence.dialect.db.MySQLDialect;
 import com.yuandu.erp.common.utils.Reflections;
+
+import java.io.Serializable;
+import java.util.Properties;
 
 /**
  * Mybatis分页拦截器基类
@@ -20,7 +20,7 @@ public abstract class BaseInterceptor implements Interceptor, Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-    protected static final String FLEXPAGE = "flexpage";
+    protected static final String PAGE = "page";
     
     protected static final String DELEGATE = "delegate";
 
@@ -38,12 +38,12 @@ public abstract class BaseInterceptor implements Interceptor, Serializable {
      * @throws NoSuchFieldException 无法找到参数
      */
     @SuppressWarnings("unchecked")
-	protected static FlexPage<Object> convertParameter(Object parameterObject, FlexPage<Object> page) {
+	protected static Page<Object> convertParameter(Object parameterObject, Page<Object> page) {
     	try{
-            if (parameterObject instanceof FlexPage) {
-                return (FlexPage<Object>) parameterObject;
+            if (parameterObject instanceof Page) {
+                return (Page<Object>) parameterObject;
             } else {
-                return (FlexPage<Object>)Reflections.getFieldValue(parameterObject, FLEXPAGE);
+                return (Page<Object>)Reflections.getFieldValue(parameterObject, PAGE);
             }
     	}catch (Exception e) {
 			return null;

@@ -194,7 +194,7 @@ public class JedisSessionDAO extends AbstractSessionDAO implements SessionDAO {
 	protected Serializable doCreate(Session session) {
 		HttpServletRequest request = Servlets.getRequest();
 		if (request != null){
-		//	String uri = request.getServletPath();
+			String uri = request.getServletPath();
 		}
 		Serializable sessionId = this.generateSessionId(session);
 		this.assignSessionId(session, sessionId);
@@ -208,7 +208,7 @@ public class JedisSessionDAO extends AbstractSessionDAO implements SessionDAO {
 		Session s = null;
 		HttpServletRequest request = Servlets.getRequest();
 		if (request != null){
-		//	String uri = request.getServletPath();
+			String uri = request.getServletPath();
 			s = (Session)request.getAttribute("session_"+sessionId);
 		}
 		if (s != null){

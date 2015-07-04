@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
-import java.util.UUID;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.apache.tools.zip.ZipOutputStream;
@@ -616,18 +614,4 @@ public class FileUtils extends org.apache.commons.io.FileUtils {
 		return p;
 	}
 
-	/**
-	 * 获取文件名称
-	 * @return
-	 */
-	public static String getUUIDFileNmae(String name){
-		if(StringUtils.isNotEmpty(name)){
-			String prefix=name.substring(name.lastIndexOf("."));
-			UUID uuid = UUID.randomUUID();  
-			return uuid.toString()+prefix;
-		}else{
-			UUID uuid = UUID.randomUUID();  
-			return uuid.toString();
-		}
-	}
 }

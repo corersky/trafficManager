@@ -1,13 +1,5 @@
 package com.yuandu.erp.common.persistence.interceptor;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.ExecutorException;
 import org.apache.ibatis.logging.Log;
@@ -22,9 +14,17 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.persistence.dialect.Dialect;
 import com.yuandu.erp.common.utils.StringUtils;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * SQL工具类
@@ -137,7 +137,7 @@ public class SQLHelper {
      * @param dialect 方言类型
      * @return 分页SQL
      */
-    public static String generatePageSql(String sql, FlexPage<Object> page, Dialect dialect) {
+    public static String generatePageSql(String sql, Page<Object> page, Dialect dialect) {
         if (dialect.supportsLimit()) {
             return dialect.getLimitString(sql, page.getFirstResult(), page.getMaxResults());
         } else {

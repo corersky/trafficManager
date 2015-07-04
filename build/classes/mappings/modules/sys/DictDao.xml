@@ -42,6 +42,7 @@
 	
 	<insert id="insert">
 		INSERT INTO sys_dict(
+			id, 
 			value, 
 			label, 
 			type, 
@@ -54,6 +55,7 @@
 			remarks, 
 			del_flag
 		) VALUES (
+			#{id}, 
 			#{value}, 
 			#{label}, 
 			#{type}, 

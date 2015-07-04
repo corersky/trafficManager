@@ -26,7 +26,6 @@
 	</script>
 </head>
 <body>
-<div class="whiteBoxNav">
 	<ul class="nav nav-tabs">
 		<li><a href="${ctx}/sys/dict/">字典列表</a></li>
 		<li class="active"><a href="${ctx}/sys/dict/form?id=${dict.id}">字典<shiro:hasPermission name="sys:dict:edit">${not empty dict.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="sys:dict:edit">查看</shiro:lacksPermission></a></li>
@@ -34,46 +33,46 @@
 	<form:form id="inputForm" modelAttribute="dict" action="${ctx}/sys/dict/save" method="post" class="form-horizontal">
 		<form:hidden path="id"/>
 		<sys:message content="${message}"/>
-		
-		<div class="form-group">
-			<label class="control-label col-md-2">键&nbsp;&nbsp;&nbsp;&nbsp;值：</label>
-			<div class="col-md-3">
-				<form:input path="value" htmlEscape="false" maxlength="50" type="number" class="form-control required" placeholder="从1开始的不重复的数字"/>
-			</div>
-			<label class="control-label col-md-2">标&nbsp;&nbsp;&nbsp;&nbsp;签：</label>
-			<div class="col-md-3">
-				<form:input path="label" htmlEscape="false" maxlength="50" class="form-control required" placeholder="中文名称"/>
+		<div class="control-group">
+			<label class="control-label">键值:</label>
+			<div class="controls">
+				<form:input path="value" htmlEscape="false" maxlength="50" class="required"/>
 			</div>
 		</div>
-		
-		<div class="form-group">
-			<label class="control-label col-md-2">类&nbsp;&nbsp;&nbsp;&nbsp;型：</label>
-			<div class="col-md-3">
-				<form:input path="type" htmlEscape="false" maxlength="50" class="form-control required" placeholder="字典类型(英文字符)"/>
-			</div>
-			<label class="control-label col-md-2">排&nbsp;&nbsp;&nbsp;&nbsp;序：</label>
-			<div class="col-md-3">
-				<form:input path="sort" htmlEscape="false" maxlength="11" class="form-control required" placeholder="从10开始数字" type="number"/>
+		<div class="control-group">
+			<label class="control-label">标签:</label>
+			<div class="controls">
+				<form:input path="label" htmlEscape="false" maxlength="50" class="required"/>
 			</div>
 		</div>
-		
-		<div class="form-group">
-			<label class="control-label col-md-2">备注信息：</label>
-			<div class="col-md-8">
-				<form:textarea path="description" htmlEscape="false" rows="4" maxlength="255" class="form-control" placeholder="备注说明"/>
+		<div class="control-group">
+			<label class="control-label">类型:</label>
+			<div class="controls">
+				<form:input path="type" htmlEscape="false" maxlength="50" class="required abc"/>
 			</div>
 		</div>
-		<div class="form-group">
-			<shiro:hasPermission name="sys:dict:edit">
-			     <label class="control-label col-md-4"></label>
-				 <div class="col-md-6">
-					<button class="btn btn-success" type="submit" id="ok">保 存</button>
-					<button class="btn btn-info" type="reset" id ="no">重 置</button>
-		            <input id="btnCancel" class="btn btn-warning" type="button" value="返 回" onclick="history.go(-1)"/>
-				 </div>
-            </shiro:hasPermission>
+		<div class="control-group">
+			<label class="control-label">描述:</label>
+			<div class="controls">
+				<form:input path="description" htmlEscape="false" maxlength="50" class="required"/>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">排序:</label>
+			<div class="controls">
+				<form:input path="sort" htmlEscape="false" maxlength="11" class="required digits"/>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">备注:</label>
+			<div class="controls">
+				<form:textarea path="remarks" htmlEscape="false" rows="3" maxlength="200" class="input-xlarge"/>
+			</div>
+		</div>
+		<div class="form-actions">
+			<shiro:hasPermission name="sys:dict:edit"><input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>&nbsp;</shiro:hasPermission>
+			<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>
 		</div>
 	</form:form>
-</div>
 </body>
 </html>

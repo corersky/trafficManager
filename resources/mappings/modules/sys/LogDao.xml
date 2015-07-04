@@ -20,9 +20,6 @@
 		<if test="createBy != null and createBy.id != null and createBy.id != ''">
 			AND a.create_by = #{createBy.id}
 		</if>
-		<if test="createBy != null and createBy.loginName != null and createBy.loginName != ''">
-			AND u.login_name = #{createBy.loginName}
-		</if>
 		<if test="requestUri != null and requestUri != ''">
 			AND a.request_uri LIKE '%${requestUri}%'
 		</if>
@@ -34,6 +31,7 @@
 	
 	<insert id="insert">
 		INSERT INTO sys_log(
+			id, 
 			type, 
 			title,
 			create_by, 
@@ -45,6 +43,7 @@
 			params, 
 			exception
 		) VALUES (
+			#{id}, 
 			#{type}, 
 			#{title}, 
 			#{createBy.id}, 

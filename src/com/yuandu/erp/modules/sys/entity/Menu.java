@@ -26,7 +26,7 @@ public class Menu extends DataEntity<Menu> {
 	private String isShow; 	// 是否在菜单中显示（1：显示；0：不显示）
 	private String permission; // 权限标识
 	
-	private Long userId;
+	private String userId;
 	
 	public Menu(){
 		super();
@@ -34,7 +34,7 @@ public class Menu extends DataEntity<Menu> {
 		this.isShow = "1";
 	}
 	
-	public Menu(Long id){
+	public Menu(String id){
 		super(id);
 	}
 	
@@ -48,6 +48,15 @@ public class Menu extends DataEntity<Menu> {
 		this.parent = parent;
 	}
 
+	@Length(min=1, max=2000)
+	public String getParentIds() {
+		return parentIds;
+	}
+
+	public void setParentIds(String parentIds) {
+		this.parentIds = parentIds;
+	}
+	
 	@Length(min=1, max=100)
 	public String getName() {
 		return name;
@@ -111,12 +120,12 @@ public class Menu extends DataEntity<Menu> {
 		this.permission = permission;
 	}
 
-	public Long getParentId() {
-		return parent != null && parent.getId() != null ? parent.getId() : 0;
+	public String getParentId() {
+		return parent != null && parent.getId() != null ? parent.getId() : "0";
 	}
 
 	@JsonIgnore
-	public static void sortList(List<Menu> list, List<Menu> sourcelist, Long parentId, boolean cascade){
+	public static void sortList(List<Menu> list, List<Menu> sourcelist, String parentId, boolean cascade){
 		for (int i=0; i<sourcelist.size(); i++){
 			Menu e = sourcelist.get(i);
 			if (e.getParent()!=null && e.getParent().getId()!=null
@@ -138,28 +147,20 @@ public class Menu extends DataEntity<Menu> {
 	}
 
 	@JsonIgnore
-	public static Long getRootId(){
-		return 1l;
+	public static String getRootId(){
+		return "1";
 	}
 	
-	public Long getUserId() {
+	public String getUserId() {
 		return userId;
 	}
 
-	public void setUserId(Long userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 
 	@Override
 	public String toString() {
 		return name;
-	}
-
-	public String getParentIds() {
-		return parentIds;
-	}
-
-	public void setParentIds(String parentIds) {
-		this.parentIds = parentIds;
 	}
 }

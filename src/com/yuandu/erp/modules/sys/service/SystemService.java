@@ -10,15 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Lists;
 import com.yuandu.erp.common.config.Global;
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.security.Digests;
 import com.yuandu.erp.common.security.shiro.session.SessionDAO;
 import com.yuandu.erp.common.service.BaseService;
+import com.yuandu.erp.common.service.ServiceException;
 import com.yuandu.erp.common.utils.CacheUtils;
 import com.yuandu.erp.common.utils.Encodes;
-import com.yuandu.erp.common.utils.LongUtils;
+import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.sys.dao.MenuDao;
 import com.yuandu.erp.modules.sys.dao.RoleDao;
 import com.yuandu.erp.modules.sys.dao.UserDao;
@@ -56,14 +56,12 @@ public class SystemService extends BaseService implements InitializingBean {
 		return sessionDao;
 	}
 
-	//-- User Service --//
-	
 	/**
 	 * 获取用户
 	 * @param id
 	 * @return
 	 */
-	public User getUser(Long id) {
+	public User getUser(String id) {
 		return UserUtils.get(id);
 	}
 
@@ -76,13 +74,13 @@ public class SystemService extends BaseService implements InitializingBean {
 		return UserUtils.getByLoginName(loginName);
 	}
 	
-	public FlexPage<User> findUser(FlexPage<User> page, User user) {
+	public Page<User> findUser(Page<User> page, User user) {
 		// 生成数据权限过滤条件（dsf为dataScopeFilter的简写，在xml中使用 ${sqlMap.dsf}调用权限SQL）
 		user.getSqlMap().put("dsf", dataScopeFilter(user.getCurrentUser(), "o", "a"));
 		// 设置分页参数
-		user.setFlexpage(page);
+		user.setPage(page);
 		// 执行分页查询
-		page.setRows(userDao.findList(user));
+		page.setList(userDao.findList(user));
 		return page;
 	}
 	
@@ -97,16 +95,6 @@ public class SystemService extends BaseService implements InitializingBean {
 		List<User> list = userDao.findList(user);
 		return list;
 	}
-	
-	/**
-	 * 获取无权限控制的人员
-	 * @param user
-	 * @return
-	 */
-	public List<User> findUserList(User user){
-		List<User> list = userDao.findList(user);
-		return list;
-	}
 
 	/**
 	 * 通过部门ID获取用户列表，仅返回用户id和name（树查询用户时用）
@@ -114,7 +102,7 @@ public class SystemService extends BaseService implements InitializingBean {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<User> findUserByOfficeId(Long officeId) {
+	public List<User> findUserByOfficeId(String officeId) {
 		List<User> list = (List<User>)CacheUtils.get(UserUtils.USER_CACHE, UserUtils.USER_CACHE_LIST_BY_OFFICE_ID_ + officeId);
 		if (list == null){
 			User user = new User();
@@ -127,8 +115,7 @@ public class SystemService extends BaseService implements InitializingBean {
 	
 	@Transactional(readOnly = false)
 	public void saveUser(User user) {
-		
-		if (LongUtils.isBlank(user.getId())){
+		if (StringUtils.isBlank(user.getId())){
 			user.preInsert();
 			userDao.insert(user);
 		}else{
@@ -141,21 +128,17 @@ public class SystemService extends BaseService implements InitializingBean {
 			user.preUpdate();
 			userDao.update(user);
 		}
-		// 更新用户与角色关联
-		userDao.deleteUserRole(user);
-		if (user.getRoleList() == null || user.getRoleList().isEmpty()){
-			List<Long> roleIdList = Lists.newArrayList();
-			roleIdList.add(6l);//普通用户角色
-			user.setRoleIdList(roleIdList);
+		if (StringUtils.isNotBlank(user.getId())){
+			// 更新用户与角色关联
+			userDao.deleteUserRole(user);
+			if (user.getRoleList() != null && user.getRoleList().size() > 0){
+				userDao.insertUserRole(user);
+			}else{
+				throw new ServiceException(user.getLoginName() + "没有设置角色！");
+			}
+			// 清除用户缓存
+			UserUtils.clearCache(user);
 		}
-		userDao.insertUserRole(user);
-		// 更新角色与部门关联
-		userDao.deleteUserOffice(user);
-		if (user.getOfficeList().size() > 0){
-			userDao.insertUserOffice(user);
-		}
-		// 清除用户缓存
-		UserUtils.clearCache(user);
 	}
 	
 	@Transactional(readOnly = false)
@@ -173,10 +156,12 @@ public class SystemService extends BaseService implements InitializingBean {
 		userDao.delete(user);
 		// 清除用户缓存
 		UserUtils.clearCache(user);
+//		// 清除权限缓存
+//		systemRealm.clearAllCachedAuthorizationInfo();
 	}
 	
 	@Transactional(readOnly = false)
-	public void updatePasswordById(Long id, String loginName, String newPassword) {
+	public void updatePasswordById(String id, String loginName, String newPassword) {
 		User user = new User(id);
 		user.setPassword(entryptPassword(newPassword));
 		userDao.updatePasswordById(user);
@@ -229,7 +214,7 @@ public class SystemService extends BaseService implements InitializingBean {
 	
 	//-- Role Service --//
 	
-	public Role getRole(Long id) {
+	public Role getRole(String id) {
 		return roleDao.get(id);
 	}
 
@@ -249,20 +234,13 @@ public class SystemService extends BaseService implements InitializingBean {
 		return roleDao.findList(role);
 	}
 	
-	public FlexPage<Role> findRole(FlexPage<Role> page,Role role){
-		role.setFlexpage(page);
-		// 执行分页查询
-		page.setRows(roleDao.findList(role));
-		return page;
-	}
-	
 	public List<Role> findAllRole(){
 		return UserUtils.getRoleList();
 	}
 	
 	@Transactional(readOnly = false)
 	public void saveRole(Role role) {
-		if (LongUtils.isBlank(role.getId())){
+		if (StringUtils.isBlank(role.getId())){
 			role.preInsert();
 			roleDao.insert(role);
 		}else{
@@ -274,8 +252,15 @@ public class SystemService extends BaseService implements InitializingBean {
 		if (role.getMenuList().size() > 0){
 			roleDao.insertRoleMenu(role);
 		}
+		// 更新角色与部门关联
+		roleDao.deleteRoleOffice(role);
+		if (role.getOfficeList().size() > 0){
+			roleDao.insertRoleOffice(role);
+		}
 		// 清除用户角色缓存
 		UserUtils.removeCache(UserUtils.CACHE_ROLE_LIST);
+//		// 清除权限缓存
+//		systemRealm.clearAllCachedAuthorizationInfo();
 	}
 
 	@Transactional(readOnly = false)
@@ -303,7 +288,7 @@ public class SystemService extends BaseService implements InitializingBean {
 		if (user == null){
 			return null;
 		}
-		List<Long> roleIds = user.getRoleIdList();
+		List<String> roleIds = user.getRoleIdList();
 		if (roleIds.contains(role.getId())) {
 			return null;
 		}
@@ -314,7 +299,7 @@ public class SystemService extends BaseService implements InitializingBean {
 
 	//-- Menu Service --//
 	
-	public Menu getMenu(Long id) {
+	public Menu getMenu(String id) {
 		return menuDao.get(id);
 	}
 
@@ -329,11 +314,12 @@ public class SystemService extends BaseService implements InitializingBean {
 		menu.setParent(this.getMenu(menu.getParent().getId()));
 		
 		if(menu.getParent()==null){
-			menu.setParent(new Menu(1l));//默认根接点
+			menu.setParent(new Menu("1"));//默认根接点
 		}
 		if(menu.getParent().getParentIds()==null){
 			menu.getParent().setParentIds("0,");
 		}
+		
 		// 获取修改前的parentIds，用于更新子节点的parentIds
 		String oldParentIds = menu.getParentIds(); 
 		
@@ -341,13 +327,14 @@ public class SystemService extends BaseService implements InitializingBean {
 		menu.setParentIds(menu.getParent().getParentIds()+menu.getParent().getId()+",");
 
 		// 保存或更新实体
-		if (LongUtils.isBlank(menu.getId())){
+		if (StringUtils.isBlank(menu.getId())){
 			menu.preInsert();
 			menuDao.insert(menu);
 		}else{
 			menu.preUpdate();
 			menuDao.update(menu);
 		}
+		
 		// 更新子节点 parentIds
 		Menu m = new Menu();
 		m.setParentIds("%,"+menu.getId()+",%");
@@ -356,9 +343,10 @@ public class SystemService extends BaseService implements InitializingBean {
 			e.setParentIds(e.getParentIds().replace(oldParentIds, menu.getParentIds()));
 			menuDao.updateParentIds(e);
 		}
-		
 		// 清除用户菜单缓存
 		UserUtils.removeCache(UserUtils.CACHE_MENU_LIST);
+//		// 清除权限缓存
+//		systemRealm.clearAllCachedAuthorizationInfo();
 		// 清除日志相关缓存
 		CacheUtils.remove(LogUtils.CACHE_MENU_NAME_PATH_MAP);
 	}
@@ -368,6 +356,8 @@ public class SystemService extends BaseService implements InitializingBean {
 		menuDao.updateSort(menu);
 		// 清除用户菜单缓存
 		UserUtils.removeCache(UserUtils.CACHE_MENU_LIST);
+//		// 清除权限缓存
+//		systemRealm.clearAllCachedAuthorizationInfo();
 		// 清除日志相关缓存
 		CacheUtils.remove(LogUtils.CACHE_MENU_NAME_PATH_MAP);
 	}

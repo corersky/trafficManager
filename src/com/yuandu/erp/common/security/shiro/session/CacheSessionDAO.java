@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-
 import com.yuandu.erp.common.config.Global;
 import com.yuandu.erp.common.utils.DateUtils;
 import com.yuandu.erp.common.utils.StringUtils;
@@ -70,7 +69,7 @@ public class CacheSessionDAO extends EnterpriseCacheSessionDAO implements Sessio
     protected Serializable doCreate(Session session) {
 		HttpServletRequest request = Servlets.getRequest();
 		if (request != null){
-		//	String uri = request.getServletPath();
+			String uri = request.getServletPath();
 		}
 		super.doCreate(session);
 		logger.debug("doCreate {} {}", session, request != null ? request.getRequestURI() : "");
@@ -88,7 +87,7 @@ public class CacheSessionDAO extends EnterpriseCacheSessionDAO implements Sessio
     		Session s = null;
     		HttpServletRequest request = Servlets.getRequest();
     		if (request != null){
-    		//	String uri = request.getServletPath();
+    			String uri = request.getServletPath();
     			s = (Session)request.getAttribute("session_"+sessionId);
     		}
     		if (s != null){

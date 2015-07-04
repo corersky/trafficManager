@@ -5,173 +5,59 @@
 	<title>日志管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
-	$(document).ready(function() {
-		init();
-	});
-	
-	function init() {
-		page_colmodel = [ {
-			display : '序号',
-			name : 'id',
-			width : '45',
-			isNo : true
-		}, {
-			display : '操作菜单',
-			width : '125',
-			name : 'title',
-			isReplaceText:true
-		}, {
-			display : '操作用户',
-			name : 'createBy.name',
-			isConfigurable :true,
-			align : 'left'
-		}, {
-			display : '所在公司',
-			name : 'createBy.company.name',
-			isConfigurable :true,
-			align : 'left'
-		}, {
-			display : '所在部门',
-			name : 'createBy.office.name',
-			sortable : false,
-			align : 'left'
-		}, {
-			display : 'URI',
-			name : 'requestUri',
-			align : 'right'
-		}, {
-			display : '提交方式',
-			name : 'method',
-			align : 'right'
-		}, {
-			display : '操作者IP',
-			name : 'remoteAddr',
-			align : 'right'
-		}, {
-			display : '操作时间',
-			name : 'createDate',
-			align : 'right'
-		}, {
-			display : '操作',
-			name : '',
-			width : '100',
-			sortable : false,
-			align : 'center',
-			isButton : true
-		} ];
-		
-		var page_buttons = [ {
-			name : '作废',
-			bclass : 'operate del',
-			onpress : 'writebackRecord'
-		} ];
-		
-		var page = {
-			id : "Sys_role",		
-			url : "${ctx}/sys/log/findPage",
-			dataType : 'json',
-			colModel : page_colmodel,
-			buttons : page_buttons,
-			sortname : 'BusiDate',
-			sortorder : 'desc',
-			usepager : true,
-			useRp : true,
-			rp : 10,
-			showTableToggleBtn : false,
-			width : 'auto',
-			height : 'auto',
-			setPageParams : 'getPageParams()'
-		};
-		myPage = page;
-		$("#resultList").flexigrid(page);
-		// DoMore();
-	}
-	
+		function page(n,s){
+			$("#pageNo").val(n);
+			$("#pageSize").val(s);
+			$("#searchForm").submit();
+	    	return false;
+	    }
 	</script>
 </head>
 <body>
-
-<div class="clear"></div>
-	<div class="whiteBox actionArea">
-		<form action="" id="normalSearchForm">
-		<table border="0" cellpadding="0" cellspacing="0" width="100%">
-			<tbody><tr>
-				<td width="300" id="">
-					<a id="btnExport" class="button  withIcon"> <span class="icon exportIcon"></span>
-						<span class="text">导出</span>
-					</a>
-					<a id="btnImport" class="button  withIcon"> <span class="icon exportIcon"></span>
-						<span class="text">导入</span>
-					</a>
-				</td>
-				<td align="right" id="search">
-				<a onclick="switchSearch(this)" class="button fr">展开高级搜索</a>
-					<div class="search fr" style="display: block;">
-					    <a class="button fr mr10" onclick="parentCancelReload()">搜索</a>	
-						<input name="" type="text" id="SearchKeyWord" class="inputText fr mr5" title="搜索编号、名称" size="35" placeholder="搜索单号、账目类型、备注" maxlength="30" spellcheck="false" style="display: block;">
-					</div>
-				</td>
-			</tr></tbody>
-		</table>
-		</form>
-	</div>
-	
-	<div id="advancedSearchDiv" style="display: none;">
-		<form:form action="" id="advancedSearchForm" modelAttribute="log">
-			<table width="100%" border="0" cellspacing="0" cellpadding="20" class="expertSearch">
-				<tbody>
-				<tr>
-					<td style="border-right: 1px solid #d7d7d7;">
-						<div class="value">
-							<div class="title" style="width: 65px; text-align: right">操作菜单</div>
-							<div class="text">
-								<input id="title" name="title" type="text" maxlength="50" class="inputText" value="${log.title}"/>
-							</div>
-						</div>
-						<div class="value">
-							<div class="title" style="width: 65px; text-align: right">用户ID</div>
-							<div class="text">
-								<input id="createBy.id" name="createBy.id" type="text" maxlength="50" class="inputText" value="${log.createBy.id}"/>
-							</div>
-						</div>
-						<div class="value">
-							<div class="title" style="width: 65px; text-align: right">用户名称</div>
-							<div class="text">
-								<input id="createBy.loginName" name="createBy.loginName" type="text" maxlength="50" class="inputText" value="${log.createBy.loginName}"/>
-							</div>
-						</div>
-						<div class="value">
-							<div class="title" style="width: 65px; text-align: right">URI</div>
-							<div class="text">
-								<input id="requestUri" name="requestUri" type="text" maxlength="50" class="input-mini" value="${log.requestUri}"/>
-							</div>
-						</div>
-						<div class="value">
-							<div class="title" style="width: 65px; text-align: right">日期范围</div>
-							<div class="text">
-								<input name="beginDate" type="text" class="inputText datepicker" value="${log.beginDate}" onclick="WdatePicker({maxDate:'#F{$dp.$D(\'end_createdate\')}'})" id="start_createdate" spellcheck="false">
-							</div>
-							<div class="title">~</div>
-							<div class="text">
-								<input name="endDate" type="text" class="inputText datepicker" value="${log.endDate}" onclick="WdatePicker({minDate:'#F{$dp.$D(\'start_createdate\')}'})" id="end_createdate" spellcheck="false">
-							</div>
-						</div>
-					</div></td>
-					<td valign="middle" align="center" width="200"><a href="javascript:;" class="button blueButton" onclick="parentCancelReload()">搜索</a> 
-						<a class="button" onclick="resetSearch()">清空搜索</a>
-					</td>
-				</tr>
-				</tbody>
-			</table>
-		</form:form>
-	</div>
-
+<!-- 	<ul class="nav nav-tabs"> -->
+<%-- 		<li class="active"><a href="${ctx}/sys/log/">日志列表</a></li> --%>
+<!-- 	</ul> -->
+	<form:form id="searchForm" action="${ctx}/sys/log/" method="post" class="breadcrumb form-search">
+		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+		<div>
+			<label>操作菜单：</label><input id="title" name="title" type="text" maxlength="50" class="input-mini" value="${log.title}"/>
+			<label>用户ID：</label><input id="createBy.id" name="createBy.id" type="text" maxlength="50" class="input-mini" value="${log.createBy.id}"/>
+			<label>URI：</label><input id="requestUri" name="requestUri" type="text" maxlength="50" class="input-mini" value="${log.requestUri}"/>
+		</div><div style="margin-top:8px;">
+			<label>日期范围：&nbsp;</label><input id="beginDate" name="beginDate" type="text" readonly="readonly" maxlength="20" class="input-mini Wdate"
+				value="<fmt:formatDate value="${log.beginDate}" pattern="yyyy-MM-dd"/>" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>
+			<label>&nbsp;--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label><input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20" class="input-mini Wdate"
+				value="<fmt:formatDate value="${log.endDate}" pattern="yyyy-MM-dd"/>" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false});"/>&nbsp;&nbsp;
+			&nbsp;<label for="exception"><input id="exception" name="exception" type="checkbox"${log.exception eq '1'?' checked':''} value="1"/>只查询异常信息</label>
+			&nbsp;&nbsp;&nbsp;<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/>&nbsp;&nbsp;
+		</div>
+	</form:form>
 	<sys:message content="${message}"/>
-	
-	<div class="clear"></div>
-	<div class="whiteBox actionArea">
-		<table id="resultList" style="border-top-width: 0px;" cellpadding="15" cellspacing="0" border="0" class="tableStyle table">
-		</table>
-	</div>
+	<table id="contentTable" class="table table-striped table-bordered table-condensed">
+		<thead><tr><th>操作菜单</th><th>操作用户</th><th>所在公司</th><th>所在部门</th><th>URI</th><th>提交方式</th><th>操作者IP</th><th>操作时间</th></thead>
+		<tbody><%request.setAttribute("strEnter", "\n");request.setAttribute("strTab", "\t");%>
+		<c:forEach items="${page.list}" var="log">
+			<tr>
+				<td>${log.title}</td>
+				<td>${log.createBy.name}</td>
+				<td>${log.createBy.company.name}</td>
+				<td>${log.createBy.office.name}</td>
+				<td><strong>${log.requestUri}</strong></td>
+				<td>${log.method}</td>
+				<td>${log.remoteAddr}</td>
+				<td><fmt:formatDate value="${log.createDate}" type="both"/></td>
+			</tr>
+			<c:if test="${not empty log.exception}"><tr>
+				<td colspan="8" style="word-wrap:break-word;word-break:break-all;">
+<%-- 					用户代理: ${log.userAgent}<br/> --%>
+<%-- 					提交参数: ${fns:escapeHtml(log.params)} <br/> --%>
+					异常信息: <br/>
+					${fn:replace(fn:replace(fns:escapeHtml(log.exception), strEnter, '<br/>'), strTab, '&nbsp; &nbsp; ')}</td>
+			</tr></c:if>
+		</c:forEach>
+		</tbody>
+	</table>
+	<div class="pagination">${page}</div>
 </body>
 </html>

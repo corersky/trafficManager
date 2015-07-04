@@ -8,13 +8,13 @@
 		a.parent_ids,
 		a.area_id AS "area.id",
 		a.code,
-		a.act_type AS "actType",
 		a.name,
 		a.sort,
 		a.type,
 		a.grade,
 		a.address, 
 		a.zip_code, 
+		a.master, 
 		a.phone, 
 		a.fax, 
 		a.email, 
@@ -25,17 +25,13 @@
 		a.update_date,
 		a.del_flag,
 		a.useable AS useable,
-		a.primary_person AS "primaryPerson",
+		a.primary_person AS "primaryPerson.id",
 		a.deputy_person AS "deputyPerson.id",
 		p.name AS "parent.name",
 		ar.name AS "area.name",
-		ar.province AS "area.province",
-		ar.city AS "area.city",
+		ar.parent_ids AS "area.parentIds",
 		pp.name AS "primaryPerson.name",
-		dp.name AS "deputyPerson.name",
-		a.alias AS "alias",
-		a.tax_num AS "taxNum",
-		a.gsphone AS "gsphone"
+		dp.name AS "deputyPerson.name"
 	</sql>
 	
 	<sql id="officeJoins">
@@ -59,11 +55,9 @@
 		FROM sys_office a
 		<include refid="officeJoins"/>
 		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
-		<if test="parent != null and parent.id != '' and parent.id != null">
-			AND (a.parent_id = #{parent.id})
-		</if>
 		<!-- 数据范围过滤 -->
 		${sqlMap.dsf}
+		OR a.id = #{currentUser.office.id}
 		ORDER BY a.code
 	</select>
 			
@@ -87,10 +81,10 @@
 	
 	<insert id="insert">
 		INSERT INTO sys_office(
+			id, 
 			parent_id, 
 			parent_ids, 
 			area_id, 
-			act_type,
 			code, 
 			name, 
 			sort, 
@@ -98,6 +92,7 @@
 			grade, 
 			address, 
 			zip_code, 
+			master, 
 			phone, 
 			fax, 
 			email, 
@@ -109,15 +104,12 @@
 			del_flag,
 			useable,
 			primary_person,
-			deputy_person,
-			alias,
-			tax_num,
-			gsphone
+			deputy_person
 		) VALUES (
+			#{id}, 
 			#{parent.id}, 
 			#{parentIds}, 
 			#{area.id}, 
-			#{actType},
 			#{code}, 
 			#{name}, 
 			#{sort}, 
@@ -125,6 +117,7 @@
 			#{grade}, 
 			#{address}, 
 			#{zipCode}, 
+			#{master}, 
 			#{phone}, 
 			#{fax}, 
 			#{email}, 
@@ -135,17 +128,13 @@
 			#{remarks}, 
 			#{delFlag},
 			#{useable},
-			#{primaryPerson},
-			#{deputyPerson.id},
-			#{alias},
-			#{taxNum},
-			#{gsphone}
+			#{primaryPerson.id},
+			#{deputyPerson.id}
 		)
 	</insert>
 	
 	<update id="update">
 		UPDATE sys_office SET 
-			act_type = #{actType},
 			parent_id = #{parent.id}, 
 			parent_ids = #{parentIds}, 
 			area_id = #{area.id}, 
@@ -155,6 +144,7 @@
 			grade = #{grade}, 
 			address = #{address}, 
 			zip_code = #{zipCode}, 
+			master = #{master}, 
 			phone = #{phone}, 
 			fax = #{fax}, 
 			email = #{email}, 
@@ -162,11 +152,8 @@
 			update_date = #{updateDate}, 
 			remarks = #{remarks},
 			useable=#{useable},
-			primary_person=#{primaryPerson},
-			deputy_person=#{deputyPerson.id},
-			alias=#{alias},
-			tax_num=#{taxNum},
-			gsphone=#{gsphone}
+			primary_person=#{primaryPerson.id},
+			deputy_person=#{deputyPerson.id}
 		WHERE id = #{id}
 	</update>
 	

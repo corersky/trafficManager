@@ -15,7 +15,6 @@ import com.yuandu.erp.common.config.Global;
 import com.yuandu.erp.common.persistence.DataEntity;
 import com.yuandu.erp.common.supcan.annotation.treelist.cols.SupCol;
 import com.yuandu.erp.common.utils.Collections3;
-import com.yuandu.erp.common.utils.StringUtils;
 
 /**
  * 用户Entity
@@ -26,7 +25,6 @@ public class User extends DataEntity<User> {
 	private Office company;	// 归属公司
 	private Office office;	// 归属部门
 	private String loginName;// 登录名
-	private String gender;		// 性别
 	private String password;// 密码
 	private String no;		// 工号
 	private String name;	// 姓名
@@ -45,34 +43,20 @@ public class User extends DataEntity<User> {
 	private String oldLoginIp;	// 上次登陆IP
 	private Date oldLoginDate;	// 上次登陆日期
 	
-	//数据授权模块修改
-	private String dataScope;// 数据范围
-	private List<Office> officeList = Lists.newArrayList(); // 按明细设置数据范围
-	
 	private Role role;	// 根据角色查询用户条件
 	
 	private List<Role> roleList = Lists.newArrayList(); // 拥有角色列表
-	
-	// 数据范围（1：所有数据；2：所在公司及以下数据；3：所在公司数据；4：所在部门及以下数据；5：所在部门数据；8：仅本人数据；9：按明细设置）
-	public static final String DATA_SCOPE_ALL = "1";
-	public static final String DATA_SCOPE_COMPANY_AND_CHILD = "2";
-	public static final String DATA_SCOPE_COMPANY = "3";
-	public static final String DATA_SCOPE_OFFICE_AND_CHILD = "4";
-	public static final String DATA_SCOPE_OFFICE = "5";
-	public static final String DATA_SCOPE_SELF = "8";
-	public static final String DATA_SCOPE_CUSTOM = "9";
 
 	public User() {
 		super();
-		this.dataScope = DATA_SCOPE_SELF;
 		this.loginFlag = Global.YES;
 	}
 	
-	public User(Long id){
+	public User(String id){
 		super(id);
 	}
 
-	public User(Long id, String loginName){
+	public User(String id, String loginName){
 		super(id);
 		this.loginName = loginName;
 	}
@@ -99,10 +83,11 @@ public class User extends DataEntity<User> {
 	}
 
 	@SupCol(isUnique="true", isHide="true")
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
+	@JsonIgnore
 	@NotNull(message="归属公司不能为空")
 	public Office getCompany() {
 		return company;
@@ -112,6 +97,7 @@ public class User extends DataEntity<User> {
 		this.company = company;
 	}
 	
+	@JsonIgnore
 	@NotNull(message="归属部门不能为空")
 	public Office getOffice() {
 		return office;
@@ -148,14 +134,6 @@ public class User extends DataEntity<User> {
 	@Length(min=1, max=100, message="工号长度必须介于 1 和 100 之间")
 	public String getNo() {
 		return no;
-	}
-
-	public String getGender() {
-		return gender;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
 	}
 
 	public void setNo(String no) {
@@ -285,17 +263,17 @@ public class User extends DataEntity<User> {
 	}
 
 	@JsonIgnore
-	public List<Long> getRoleIdList() {
-		List<Long> roleIdList = Lists.newArrayList();
+	public List<String> getRoleIdList() {
+		List<String> roleIdList = Lists.newArrayList();
 		for (Role role : roleList) {
 			roleIdList.add(role.getId());
 		}
 		return roleIdList;
 	}
 
-	public void setRoleIdList(List<Long> roleIdList) {
+	public void setRoleIdList(List<String> roleIdList) {
 		roleList = Lists.newArrayList();
-		for (Long roleId : roleIdList) {
+		for (String roleId : roleIdList) {
 			Role role = new Role();
 			role.setId(roleId);
 			roleList.add(role);
@@ -313,58 +291,12 @@ public class User extends DataEntity<User> {
 		return isAdmin(this.id);
 	}
 	
-	public static boolean isAdmin(Long id){
-		return id != null && 1==id;
+	public static boolean isAdmin(String id){
+		return id != null && "1".equals(id);
 	}
 	
 	@Override
 	public String toString() {
-		return id==null?"":id.toString();
+		return id;
 	}
-	
-	public String getDataScope() {
-		return dataScope;
-	}
-
-	public void setDataScope(String dataScope) {
-		this.dataScope = dataScope;
-	}
-	
-	public List<Office> getOfficeList() {
-		return officeList;
-	}
-
-	public void setOfficeList(List<Office> officeList) {
-		this.officeList = officeList;
-	}
-
-	public List<Long> getOfficeIdList() {
-		List<Long> officeIdList = Lists.newArrayList();
-		for (Office office : officeList) {
-			officeIdList.add(office.getId());
-		}
-		return officeIdList;
-	}
-
-	public void setOfficeIdList(List<String> officeIdList) {
-		officeList = Lists.newArrayList();
-		for (String officeId : officeIdList) {
-			Office office = new Office();
-			office.setId(StringUtils.toLong(officeId));
-			officeList.add(office);
-		}
-	}
-	
-	public String getOfficeIds() {
-		return StringUtils.join(getOfficeIdList(), ",");
-	}
-	
-	public void setOfficeIds(String officeIds) {
-		officeList = Lists.newArrayList();
-		if (officeIds != null){
-			String[] ids = StringUtils.split(officeIds, ",");
-			setOfficeIdList(Lists.newArrayList(ids));
-		}
-	}
-
 }

@@ -5,15 +5,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yuandu.erp.common.persistence.BaseEntity;
 import com.yuandu.erp.common.persistence.CrudDao;
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.DataEntity;
+import com.yuandu.erp.common.persistence.Page;
 
 /**
  * Service基类
  */
 @Transactional(readOnly = true)
-public abstract class CrudService<D extends CrudDao<T>, T extends BaseEntity<T>> extends BaseService {
+public abstract class CrudService<D extends CrudDao<T>, T extends DataEntity<T>> extends BaseService {
 	
 	/**
 	 * 持久层对象
@@ -26,12 +26,8 @@ public abstract class CrudService<D extends CrudDao<T>, T extends BaseEntity<T>>
 	 * @param id
 	 * @return
 	 */
-	public T get(Long id) {
+	public T get(String id) {
 		return dao.get(id);
-	}
-	
-	public D getDao(){
-		return dao;
 	}
 	
 	/**
@@ -58,9 +54,9 @@ public abstract class CrudService<D extends CrudDao<T>, T extends BaseEntity<T>>
 	 * @param entity
 	 * @return
 	 */
-	public FlexPage<T> findPage(FlexPage<T> page, T entity) {
-		entity.setFlexpage(page);
-		page.setRows(dao.findList(entity));
+	public Page<T> findPage(Page<T> page, T entity) {
+		entity.setPage(page);
+		page.setList(dao.findList(entity));
 		return page;
 	}
 

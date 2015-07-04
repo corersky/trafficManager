@@ -20,9 +20,6 @@
 				${adminPath}/login = authc
 				${adminPath}/logout = logout
 				${adminPath}/** = user
-				/act/rest/service/editor/** = perms[act:model:edit]
-				/act/rest/service/model/** = perms[act:model:edit]
-				/act/rest/service/** = user
 				/ReportServer/** = user
 			</value>
 		</constructor-arg>

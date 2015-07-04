@@ -24,7 +24,7 @@ public class Dict extends DataEntity<Dict> {
 		super();
 	}
 	
-	public Dict(Long id){
+	public Dict(String id){
 		super(id);
 	}
 	
@@ -92,7 +92,6 @@ public class Dict extends DataEntity<Dict> {
 	
 	@Override
 	public String toString() {
-		return "{\"label\":\""+label+"\",\"value\":\""+value+"\"}";
+		return label;
 	}
-	
 }

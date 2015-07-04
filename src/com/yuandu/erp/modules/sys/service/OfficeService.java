@@ -31,7 +31,8 @@ public class OfficeService extends TreeService<OfficeDao, Office> {
 	
 	@Transactional(readOnly = true)
 	public List<Office> findList(Office office){
-		return dao.findList(office);
+		office.setParentIds(office.getParentIds()+"%");
+		return dao.findByParentIdsLike(office);
 	}
 	
 	@Transactional(readOnly = false)

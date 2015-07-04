@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.yuandu.erp.common.persistence.TreeDao;
 import com.yuandu.erp.common.persistence.TreeEntity;
-import com.yuandu.erp.common.utils.LongUtils;
 import com.yuandu.erp.common.utils.Reflections;
 import com.yuandu.erp.common.utils.StringUtils;
 
@@ -23,7 +22,7 @@ public abstract class TreeService<D extends TreeDao<T>, T extends TreeEntity<T>>
 		Class<T> entityClass = Reflections.getClassGenricType(getClass(), 1);
 		
 		// 如果没有设置父节点，则代表为跟节点，有则获取父节点实体
-		if (entity.getParent() == null || LongUtils.isBlank(entity.getParentId()) 
+		if (entity.getParent() == null || StringUtils.isBlank(entity.getParentId()) 
 				|| "0".equals(entity.getParentId())){
 			entity.setParent(null);
 		}else{
@@ -32,7 +31,7 @@ public abstract class TreeService<D extends TreeDao<T>, T extends TreeEntity<T>>
 		if (entity.getParent() == null){
 			T parentEntity = null;
 			try {
-				parentEntity = entityClass.getConstructor(Long.class).newInstance(0l);
+				parentEntity = entityClass.getConstructor(String.class).newInstance("0");
 			} catch (Exception e) {
 				throw new ServiceException(e);
 			}
@@ -65,6 +64,7 @@ public abstract class TreeService<D extends TreeDao<T>, T extends TreeEntity<T>>
 				dao.updateParentIds(e);
 			}
 		}
+		
 	}
 	
 	/**
@@ -74,5 +74,5 @@ public abstract class TreeService<D extends TreeDao<T>, T extends TreeEntity<T>>
 	protected void preUpdateChild(T entity, T childEntity) {
 		
 	}
-	
+
 }

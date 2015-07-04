@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.service.CrudService;
 import com.yuandu.erp.modules.oa.dao.OaNotifyDao;
 import com.yuandu.erp.modules.oa.dao.OaNotifyRecordDao;
@@ -23,7 +23,7 @@ public class OaNotifyService extends CrudService<OaNotifyDao, OaNotify> {
 	@Autowired
 	private OaNotifyRecordDao oaNotifyRecordDao;
 
-	public OaNotify get(Long id) {
+	public OaNotify get(String id) {
 		OaNotify entity = dao.get(id);
 		return entity;
 	}
@@ -38,9 +38,9 @@ public class OaNotifyService extends CrudService<OaNotifyDao, OaNotify> {
 		return oaNotify;
 	}
 	
-	public FlexPage<OaNotify> find(FlexPage<OaNotify> page, OaNotify oaNotify) {
-		oaNotify.setFlexpage(page);
-		page.setRows(dao.findList(oaNotify));
+	public Page<OaNotify> find(Page<OaNotify> page, OaNotify oaNotify) {
+		oaNotify.setPage(page);
+		page.setList(dao.findList(oaNotify));
 		return page;
 	}
 	

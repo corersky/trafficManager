@@ -5,23 +5,17 @@
 	<title>数据选择</title>
 	<meta name="decorator" content="blank"/>
 	<%@include file="/WEB-INF/views/include/treeview.jsp" %>
-	
 	<script type="text/javascript">
 		var key, lastValue = "", nodeList = [], type = getQueryString("type", "${url}");
-		//配置ztree自节点展开地址
-		var async=null;
-		if(type==3){//用户选择
-			async = {enable:true,url:"${ctx}/sys/user/treeData",autoParam:["id=officeId"]};
-		}else if(type==4){//地域品牌选择
-			async = {enable:true,url:"${ctx}/invoc/brand/treeMchantData",autoParam:["id=merchantId"]};
-		}else if(type==5){//地域小区选择
-			async = {enable:true,url:"${ctx}/market/house/HouseCommunityInfo/treeData",autoParam:["id=areaId"]};
-		}else{
-			async = {enable:false,url:"",autoParam:[]};
-		}
 		var tree, setting = {view:{selectedMulti:false,dblClickExpand:false},check:{enable:"${checked}",nocheckInherit:true},
-				async:async,
-				data:{simpleData:{enable:true}},callback:{
+				async:{enable:(type==3),url:"${ctx}/sys/user/treeData",autoParam:["id=officeId"]},
+				data:{simpleData:{enable:true}},callback:{<%--
+					beforeClick: function(treeId, treeNode){
+						if("${checked}" == "true"){
+							//tree.checkNode(treeNode, !node.checked, true, true);
+							tree.expandNode(treeNode, true, false, false);
+						}
+					}, --%>
 					onClick:function(event, treeId, treeNode){
 						tree.expandNode(treeNode);
 					},onCheck: function(e, treeId, treeNode){
@@ -53,23 +47,21 @@
 			}
 		}
 		$(document).ready(function(){
-			$.get("${ctx}${url}${fn:indexOf(url,'?')==-1?'?':'&'}&includIds=${includIds}&storageId=${storageId}&extId=${extId}&isAll=${isAll}&isMyCompany=${isMyCompany}&module=${module}&t="
+			$.get("${ctx}${url}${fn:indexOf(url,'?')==-1?'?':'&'}&extId=${extId}&isAll=${isAll}&module=${module}&t="
 					+ new Date().getTime(), function(zNodes){
 				// 初始化树结构
 				tree = $.fn.zTree.init($("#tree"), setting, zNodes);
 				
 				// 默认展开一级节点
-				if(type!=5){
-					var nodes = tree.getNodesByParam("level", 0);
-					for(var i=0; i<nodes.length; i++) {
-						tree.expandNode(nodes[i], true, false, false);
-					}
+				var nodes = tree.getNodesByParam("level", 0);
+				for(var i=0; i<nodes.length; i++) {
+					tree.expandNode(nodes[i], true, false, false);
 				}
-				//异步加载子节点（加载用户）暂时不用！！！！
-				/* var nodesOne = tree.getNodesByParam("isParent", true);
+				//异步加载子节点（加载用户）
+				var nodesOne = tree.getNodesByParam("isParent", true);
 				for(var j=0; j<nodesOne.length; j++) {
 					tree.reAsyncChildNodes(nodesOne[j],"!refresh",true);
-				} */
+				}
 				selectCheckNode();
 			});
 			key = $("#key");
@@ -82,8 +74,7 @@
 		function selectCheckNode(){
 			var ids = "${selectIds}".split(",");
 			for(var i=0; i<ids.length; i++) {
-				var uid = ((type==3||type==4||type==5)?"u_":"")+ids[i];
-				var node = tree.getNodeByParam("id", uid);
+				var node = tree.getNodeByParam("id", (type==3?"u_":"")+ids[i]);
 				if("${checked}" == "true"){
 					try{tree.checkNode(node, true, true);}catch(e){}
 					tree.selectNode(node, false);
@@ -110,7 +101,10 @@
 			var value = $.trim(key.get(0).value);
 			
 			// 按名字查询
-			var keyType = "name";
+			var keyType = "name";<%--
+			if (key.hasClass("empty")) {
+				value = "";
+			}--%>
 			
 			// 如果和上次一次，就退出不查了。
 			if (lastValue === value) {

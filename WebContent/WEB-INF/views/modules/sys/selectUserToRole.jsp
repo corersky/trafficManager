@@ -94,19 +94,19 @@
 	</script>
 </head>
 <body>
-	<div class="form-inline" style="text-align: top;">
-	  <div class="form-group col-md-4" style="border-right: 1px solid #A8A8A8;min-height: 280px; width: 205px; text-align: top;">
-	    <p>所在部门：</p>
+	<div id="assignRole" class="row-fluid span12">
+		<div class="span4" style="border-right: 1px solid #A8A8A8;">
+			<p>所在部门：</p>
 			<div id="officeTree" class="ztree"></div>
-	  </div>
-	  <div class="form-group col-md-4" style="border-right: 1px solid #A8A8A8;min-height: 280px; width: 205px; text-align: top;">
-	    <p>待选人员：</p>
+		</div>
+		<div class="span3">
+			<p>待选人员：</p>
 			<div id="userTree" class="ztree"></div>
-	  </div>
-	  <div class="form-group col-md-4" style="min-height: 280px; width: 205px; text-align: top;">
-	    <p>已选人员：</p>
+		</div>
+		<div class="span3" style="padding-left:16px;border-left: 1px solid #A8A8A8;">
+			<p>已选人员：</p>
 			<div id="selectedTree" class="ztree"></div>
-	  </div>
+		</div>
 	</div>
 </body>
 </html>

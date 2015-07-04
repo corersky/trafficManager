@@ -1,67 +1,36 @@
 package com.yuandu.erp.modules.sys.entity;
 
-import java.util.List;
+import org.hibernate.validator.constraints.Length;
 
-import com.google.common.collect.Lists;
-import com.yuandu.erp.common.persistence.DataEntity;
+import com.yuandu.erp.common.persistence.TreeEntity;
 
 /**
  * 区域Entity
  */
-public class Area extends DataEntity<Area> {
+public class Area extends TreeEntity<Area> {
 
 	private static final long serialVersionUID = 1L;
-	private String areaCode;//区号
-	private String name;// 名称
-	private Long province;	// 排序
-	private Long city; 	
-	private String type;// 区域类型（1：省份、直辖市；2：地市；3：区县）
-	private String remarks;	// 备注
-	
-	private String provinceName;
-	private String cityName;
-	private List<Area> child = Lists.newArrayList();
+	private String code; 	// 区域编码
+	private String type; 	// 区域类型（1：国家；2：省份、直辖市；3：地市；4：区县）
 	
 	public Area(){
 		super();
+		this.sort = 30;
 	}
 
-	public Area(Long id){
+	public Area(String id){
 		super(id);
 	}
-
-	public String getAreaCode() {
-		return areaCode;
+	
+	public Area getParent() {
+		return parent;
 	}
 
-	public void setAreaCode(String areaCode) {
-		this.areaCode = areaCode;
+	public void setParent(Area parent) {
+		this.parent = parent;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Long getProvince() {
-		return province;
-	}
-
-	public void setProvince(Long province) {
-		this.province = province;
-	}
-
-	public Long getCity() {
-		return city;
-	}
-
-	public void setCity(Long city) {
-		this.city = city;
-	}
-
+	@Length(min=1, max=1)
 	public String getType() {
 		return type;
 	}
@@ -70,36 +39,17 @@ public class Area extends DataEntity<Area> {
 		this.type = type;
 	}
 
-	public String getRemarks() {
-		return remarks;
+	@Length(min=0, max=100)
+	public String getCode() {
+		return code;
 	}
 
-	public void setRemarks(String remarks) {
-		this.remarks = remarks;
-	}
-
-	public String getProvinceName() {
-		return provinceName;
-	}
-
-	public void setProvinceName(String provinceName) {
-		this.provinceName = provinceName;
-	}
-
-	public String getCityName() {
-		return cityName;
-	}
-
-	public void setCityName(String cityName) {
-		this.cityName = cityName;
-	}
-
-	public List<Area> getChild() {
-		return child;
-	}
-
-	public void setChild(List<Area> child) {
-		this.child = child;
+	public void setCode(String code) {
+		this.code = code;
 	}
 	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

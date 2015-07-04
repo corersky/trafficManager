@@ -2,7 +2,6 @@ package com.yuandu.erp.common.persistence;
 
 import java.util.List;
 
-
 /**
  * DAO支持类实现
  * @param <T>

@@ -34,7 +34,7 @@ public class Log extends DataEntity<Log> {
 		super();
 	}
 	
-	public Log(Long id){
+	public Log(String id){
 		super(id);
 	}
 	

@@ -66,14 +66,5 @@ public interface UserDao extends CrudDao<User> {
 	 * @return
 	 */
 	public int updateUserInfo(User user);
-	
-	/**
-	 * 维护用户与公司部门关系
-	 * @param user
-	 * @return
-	 */
-	public int deleteUserOffice(User user);
-
-	public int insertUserOffice(User user);
 
 }

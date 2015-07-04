@@ -18,8 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.yuandu.erp.common.config.Global;
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
 import com.yuandu.erp.modules.sys.entity.Dict;
@@ -38,7 +37,7 @@ public class DictController extends BaseController {
 	@ModelAttribute
 	public Dict get(@RequestParam(required=false) String id) {
 		if (StringUtils.isNotBlank(id)){
-			return dictService.get(StringUtils.toLong(id));
+			return dictService.get(id);
 		}else{
 			return new Dict();
 		}
@@ -49,15 +48,9 @@ public class DictController extends BaseController {
 	public String list(Dict dict, HttpServletRequest request, HttpServletResponse response, Model model) {
 		List<String> typeList = dictService.findTypeList();
 		model.addAttribute("typeList", typeList);
-        model.addAttribute("dict", dict);
+        Page<Dict> page = dictService.findPage(new Page<Dict>(request, response), dict); 
+        model.addAttribute("page", page);
 		return "modules/sys/dictList";
-	}
-	
-	@RequiresPermissions("sys:user:view")
-	@RequestMapping(value = "findPage")
-	public @ResponseBody FlexPage<Dict> findPage(Dict dict,HttpServletRequest request, HttpServletResponse response, Model model) {
-		FlexPage<Dict> page = dictService.findPage(new FlexPage<Dict>(request, response), dict); 
-		return page;
 	}
 
 	@RequiresPermissions("sys:dict:view")
@@ -70,10 +63,6 @@ public class DictController extends BaseController {
 	@RequiresPermissions("sys:dict:edit")
 	@RequestMapping(value = "save")//@Valid 
 	public String save(Dict dict, Model model, RedirectAttributes redirectAttributes) {
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/dict/?repage&type="+dict.getType();
-		}
 		if (!beanValidator(model, dict)){
 			return form(dict, model);
 		}
@@ -85,10 +74,6 @@ public class DictController extends BaseController {
 	@RequiresPermissions("sys:dict:edit")
 	@RequestMapping(value = "delete")
 	public String delete(Dict dict, RedirectAttributes redirectAttributes) {
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/dict/?repage";
-		}
 		dictService.delete(dict);
 		addMessage(redirectAttributes, "删除字典成功");
 		return "redirect:" + adminPath + "/sys/dict/?repage&type="+dict.getType();

@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yuandu.erp.common.service.CrudService;
+import com.yuandu.erp.common.service.TreeService;
 import com.yuandu.erp.modules.sys.dao.AreaDao;
 import com.yuandu.erp.modules.sys.entity.Area;
 import com.yuandu.erp.modules.sys.utils.UserUtils;
@@ -15,7 +15,7 @@ import com.yuandu.erp.modules.sys.utils.UserUtils;
  */
 @Service
 @Transactional(readOnly = true)
-public class AreaService extends CrudService<AreaDao, Area> {
+public class AreaService extends TreeService<AreaDao, Area> {
 
 	public List<Area> findAll(){
 		return UserUtils.getAreaList();

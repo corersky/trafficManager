@@ -3,7 +3,6 @@ package com.yuandu.erp.modules.sys.web;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -19,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.yuandu.erp.common.config.Global;
-import com.yuandu.erp.common.persistence.FlexPage;
+import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.utils.Collections3;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
@@ -46,7 +45,7 @@ public class RoleController extends BaseController {
 	@ModelAttribute("role")
 	public Role get(@RequestParam(required=false) String id) {
 		if (StringUtils.isNotBlank(id)){
-			return systemService.getRole(StringUtils.toLong(id));
+			return systemService.getRole(id);
 		}else{
 			return new Role();
 		}
@@ -55,15 +54,9 @@ public class RoleController extends BaseController {
 	@RequiresPermissions("sys:role:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(Role role, Model model) {
-		model.addAttribute("role", role);
+		List<Role> list = systemService.findAllRole();
+		model.addAttribute("list", list);
 		return "modules/sys/roleList";
-	}
-	
-	@RequiresPermissions("sys:role:view")
-	@RequestMapping(value = "findPage")
-	public @ResponseBody FlexPage<Role> findPage(Role role,HttpServletRequest request, HttpServletResponse response, Model model) {
-		FlexPage<Role> page = systemService.findRole(new FlexPage<Role>(request, response), role);
-		return page;
 	}
 
 	@RequiresPermissions("sys:role:view")
@@ -108,18 +101,8 @@ public class RoleController extends BaseController {
 			addMessage(redirectAttributes, "越权操作，只有超级管理员才能修改此数据！");
 			return "redirect:" + adminPath + "/sys/role/?repage";
 		}
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/role/?repage";
-		}
-//		if (Role.isAdmin(id)){
-//			addMessage(redirectAttributes, "删除角色失败, 不允许内置角色或编号空");
-////		}else if (UserUtils.getUser().getRoleIdList().contains(id)){
-////			addMessage(redirectAttributes, "删除角色失败, 不能删除当前用户所在角色");
-//		}else{
-			systemService.deleteRole(role);
-			addMessage(redirectAttributes, "删除角色成功");
-//		}
+		systemService.deleteRole(role);
+		addMessage(redirectAttributes, "删除角色成功");
 		return "redirect:" + adminPath + "/sys/role/?repage";
 	}
 	
@@ -163,12 +146,12 @@ public class RoleController extends BaseController {
 	@RequiresPermissions("sys:role:view")
 	@ResponseBody
 	@RequestMapping(value = "users")
-	public List<Map<String, Object>> users(Long officeId, HttpServletResponse response) {
+	public List<Map<String, Object>> users(String officeId, HttpServletResponse response) {
 		List<Map<String, Object>> mapList = Lists.newArrayList();
 		User user = new User();
 		user.setOffice(new Office(officeId));
-		FlexPage<User> page = systemService.findUser(new FlexPage<User>(1, -1), user);
-		for (User e : page.getRows()) {
+		Page<User> page = systemService.findUser(new Page<User>(1, -1), user);
+		for (User e : page.getList()) {
 			Map<String, Object> map = Maps.newHashMap();
 			map.put("id", e.getId());
 			map.put("pId", 0);
@@ -187,12 +170,8 @@ public class RoleController extends BaseController {
 	 */
 	@RequiresPermissions("sys:role:edit")
 	@RequestMapping(value = "outrole")
-	public String outrole(Long userId, String roleId, RedirectAttributes redirectAttributes) {
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/role/assign?id="+roleId;
-		}
-		Role role = systemService.getRole(StringUtils.toLong(roleId));
+	public String outrole(String userId, String roleId, RedirectAttributes redirectAttributes) {
+		Role role = systemService.getRole(roleId);
 		User user = systemService.getUser(userId);
 		if (UserUtils.getUser().getId().equals(userId)) {
 			addMessage(redirectAttributes, "无法从角色【" + role.getName() + "】中移除用户【" + user.getName() + "】自己！");
@@ -221,14 +200,10 @@ public class RoleController extends BaseController {
 	@RequiresPermissions("sys:role:edit")
 	@RequestMapping(value = "assignrole")
 	public String assignRole(Role role, String[] idsArr, RedirectAttributes redirectAttributes) {
-		if(Global.isDemoMode()){
-			addMessage(redirectAttributes, "演示模式，不允许操作！");
-			return "redirect:" + adminPath + "/sys/role/assign?id="+role.getId();
-		}
 		StringBuilder msg = new StringBuilder();
 		int newNum = 0;
 		for (int i = 0; i < idsArr.length; i++) {
-			User user = systemService.assignUserToRole(role, systemService.getUser(StringUtils.toLong(idsArr[i])));
+			User user = systemService.assignUserToRole(role, systemService.getUser(idsArr[i]));
 			if (null != user) {
 				msg.append("<br/>新增用户【" + user.getName() + "】到角色【" + role.getName() + "】！");
 				newNum++;
