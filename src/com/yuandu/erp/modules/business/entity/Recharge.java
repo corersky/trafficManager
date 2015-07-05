@@ -2,8 +2,6 @@ package com.yuandu.erp.modules.business.entity;
 
 import java.util.Date;
 
-import org.hibernate.validator.constraints.Length;
-
 import com.yuandu.erp.common.persistence.DataEntity;
 
 /**
@@ -17,6 +15,11 @@ public class Recharge extends DataEntity<Recharge> {
 	private Integer flowCount;
 	private String status;
 	private String type;
+	private String productId;//产品ID
+	private String partnerOrderNo;//合作方的生成的订单号
+	private String notifyUrl;//回调地址
+	private String orderNo;//运营商订单号
+
 	
 	private Date beginDate;		// 开始日期
 	private Date endDate;		// 结束日期
@@ -29,7 +32,6 @@ public class Recharge extends DataEntity<Recharge> {
 		super(id);
 	}
 
-	@Length(min=0, max=20, message="标题长度必须介于 0 和 20 之间")
 	public String getMobile() {
 		return mobile;
 	}
@@ -76,6 +78,38 @@ public class Recharge extends DataEntity<Recharge> {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+
+	public String getProductId() {
+		return productId;
+	}
+
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+
+	public String getPartnerOrderNo() {
+		return partnerOrderNo;
+	}
+
+	public void setPartnerOrderNo(String partnerOrderNo) {
+		this.partnerOrderNo = partnerOrderNo;
+	}
+
+	public String getNotifyUrl() {
+		return notifyUrl;
+	}
+
+	public void setNotifyUrl(String notifyUrl) {
+		this.notifyUrl = notifyUrl;
+	}
+
+	public String getOrderNo() {
+		return orderNo;
+	}
+
+	public void setOrderNo(String orderNo) {
+		this.orderNo = orderNo;
 	}
 
 }
