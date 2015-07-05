@@ -1,5 +1,7 @@
 package com.yuandu.erp.modules.business.entity;
 
+import java.util.Date;
+
 import org.hibernate.validator.constraints.Length;
 
 import com.yuandu.erp.common.persistence.DataEntity;
@@ -15,6 +17,9 @@ public class Recharge extends DataEntity<Recharge> {
 	private Integer flowCount;
 	private String status;
 	private String type;
+	
+	private Date beginDate;		// 开始日期
+	private Date endDate;		// 结束日期
 	
 	public Recharge() {
 		super();
@@ -55,6 +60,22 @@ public class Recharge extends DataEntity<Recharge> {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public Date getBeginDate() {
+		return beginDate;
+	}
+
+	public void setBeginDate(Date beginDate) {
+		this.beginDate = beginDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.yuandu.erp.modules.business.web;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,11 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.google.common.collect.Lists;
 import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.business.service.RechargeService;
+import com.yuandu.erp.webservice.bean.ProductResponse;
+import com.yuandu.erp.webservice.service.ProductService;
 
 /**
  * 用户付费Controller
@@ -27,6 +32,9 @@ public class RechargeController extends BaseController {
 
 	@Autowired
 	private RechargeService rechargeService;
+	@Autowired
+	private ProductService productService;
+	
 	
 	@ModelAttribute
 	public Recharge get(@RequestParam(required=false) String id) {
@@ -83,6 +91,20 @@ public class RechargeController extends BaseController {
 		rechargeService.delete(recharge);
 		addMessage(redirectAttributes, "删除记录成功");
 		return "redirect:" + adminPath + "/business/recharge/?repage";
+	}
+	
+	@RequiresPermissions("business:recharge:view")
+	@RequestMapping(value = "rechargeList")
+	public String rechargeList(Recharge recharge, Model model, RedirectAttributes redirectAttributes) {
+		List<ProductResponse> list = Lists.newArrayList();
+		
+		if(!StringUtils.isMobileNO(recharge.getMobile())){
+			addMessage(redirectAttributes, "请填写正确的手机号！");
+		}else{
+			list = productService.productListByMobile(recharge.getMobile());
+		}
+		model.addAttribute("list", list);
+		return "modules/business/rechargeForm";
 	}
 	
 }

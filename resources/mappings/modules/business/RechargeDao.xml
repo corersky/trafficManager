@@ -43,6 +43,10 @@
 		<if test="status != null and status != ''">
 			AND a.STATUS = #{status}
 		</if>
+		<if test="beginDate != null and beginDate != '' and endDate != null and endDate != '' ">
+			AND a.create_date BETWEEN #{beginDate} AND #{endDate}
+		</if>
+		
 		ORDER BY a.update_date DESC
 	</select>
 	
