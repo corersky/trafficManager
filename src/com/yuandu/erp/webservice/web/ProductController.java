@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yuandu.erp.webservice.bean.ProductResponse;
+import com.yuandu.erp.webservice.bean.ProductPojo;
 
 /**
  * 用户付费Controller
@@ -24,7 +24,7 @@ public class ProductController {
 	 * 接口鉴权:是
 	 * 参数(GET)*/
 	@RequestMapping(value = "productListByMobile")
-	public @ResponseBody List<ProductResponse> productListByMobile(@RequestParam String mobile) {
+	public @ResponseBody List<ProductPojo> productListByMobile(@RequestParam String mobile) {
 		//不能为空(需要根据Pubkey进行Rsa加密)
 		//添加鉴权接口
 		

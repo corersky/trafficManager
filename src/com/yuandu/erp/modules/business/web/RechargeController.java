@@ -20,7 +20,7 @@ import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.business.service.RechargeService;
-import com.yuandu.erp.webservice.bean.ProductResponse;
+import com.yuandu.erp.webservice.bean.ProductPojo;
 import com.yuandu.erp.webservice.service.ProductService;
 
 /**
@@ -96,10 +96,10 @@ public class RechargeController extends BaseController {
 	@RequiresPermissions("business:recharge:view")
 	@RequestMapping(value = "rechargeList")
 	public String rechargeList(Recharge recharge, Model model, RedirectAttributes redirectAttributes) {
-		List<ProductResponse> list = Lists.newArrayList();
+		List<ProductPojo> list = Lists.newArrayList();
 		
 		if(!StringUtils.isMobileNO(recharge.getMobile())){
-			addMessage(redirectAttributes, "请填写正确的手机号！");
+			model.addAttribute("message", "请填写正确的手机号！");
 		}else{
 			list = productService.productListByMobile(recharge.getMobile());
 		}

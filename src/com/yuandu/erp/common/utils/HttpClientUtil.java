@@ -42,7 +42,7 @@ public class HttpClientUtil {
 	 * @throws IOException 
 	 */
 	@SuppressWarnings({ "unused" })
-	public static String doGetURL(String reqURL) throws Exception{
+	public static String doGetURL(String reqURL) {
 		
 		long responseLength = 0;       //响应长度
 		String responseContent = null; //响应内容

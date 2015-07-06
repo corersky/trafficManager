@@ -2,7 +2,7 @@ package com.yuandu.erp.webservice.bean;
 
 import java.io.Serializable;
 
-public class ProductResponse implements Serializable{
+public class ProductPojo implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	

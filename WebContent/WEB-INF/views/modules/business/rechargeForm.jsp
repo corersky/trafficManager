@@ -51,15 +51,15 @@
 		<li class="active"><a href="${ctx}/business/recharge/form?id=${recharge.id}">充值管理<shiro:hasPermission name="business:recharge:edit">${not empty area.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="business:recharge:edit">查看</shiro:lacksPermission></a></li>
 	</ul><br/>
 	<form:form id="searchForm" modelAttribute="recharge" action="${ctx}/business/recharge/rechargeList" method="post" class="form-horizontal">
-		<sys:message content="${message}"/>
 		<div class="control-group">
 			<label class="control-label">客户手机号:</label>
 			<div class="controls">
-				<form:input path="mobile" htmlEscape="false" maxlength="50" class="required"/>
+				<form:input path="mobile" htmlEscape="false" maxlength="50" class="required mobile"/>
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();"/>
 			</div>
 		</div>
 	</form:form>
+	<sys:message content="${message}"/>
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
 		<thead><tr>
 			<th>商品名称</th>
