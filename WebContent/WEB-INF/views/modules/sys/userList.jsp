@@ -23,7 +23,7 @@
 				'<ul class="ul-form">'+
 				'<li><label>客户名称：</label><span>'+name+'</span></li>'+
 				'<li><label>客户标识：</label><span>'+no+'</span></li>'+
-				'<li><label>充值金额：</label><input name="balance" value="0" type="text" class="required input-medium"/></li>'+
+				'<li><label>充值金额：</label><input name="balance" value="" type="text" class="required input-medium"/></li>'+
 				'</ul></form>';
 			
 			$.jBox(html, {title:"导入数据", buttons:{"充值":true,"关闭":false},submit:function(v,h,f){

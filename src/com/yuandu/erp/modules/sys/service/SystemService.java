@@ -27,6 +27,7 @@ import com.yuandu.erp.modules.sys.entity.Menu;
 import com.yuandu.erp.modules.sys.entity.Office;
 import com.yuandu.erp.modules.sys.entity.Role;
 import com.yuandu.erp.modules.sys.entity.User;
+import com.yuandu.erp.modules.sys.entity.UserRecharge;
 import com.yuandu.erp.modules.sys.security.SystemAuthorizingRealm;
 import com.yuandu.erp.modules.sys.utils.LogUtils;
 import com.yuandu.erp.modules.sys.utils.UserUtils;
@@ -52,6 +53,8 @@ public class SystemService extends BaseService implements InitializingBean {
 	private SessionDAO sessionDao;
 	@Autowired
 	private SystemAuthorizingRealm systemRealm;
+	@Autowired
+	private UserRechargeService userRechargeService;
 	
 	public SessionDAO getSessionDao() {
 		return sessionDao;
@@ -117,6 +120,7 @@ public class SystemService extends BaseService implements InitializingBean {
 	@Transactional(readOnly = false)
 	public void saveUser(User user) {
 		if (StringUtils.isBlank(user.getId())){
+			user.setNo(createNewNo());
 			user.preInsert();
 			userDao.insert(user);
 		}else{
@@ -185,6 +189,12 @@ public class SystemService extends BaseService implements InitializingBean {
 	@Transactional(readOnly = false)
 	public void updateBlance(User user) {
 		userDao.updateBlance(user);
+		//保存充值记录
+		UserRecharge recharge = new UserRecharge();
+		recharge.setBalance(user.getBalance());
+		recharge.setSupplier(user);
+		userRechargeService.save(recharge);
+		
 		// 清除用户缓存
 		UserUtils.clearCache(user);
 	}
@@ -219,7 +229,6 @@ public class SystemService extends BaseService implements InitializingBean {
 		while(true){
 			String no = RandomStringUtils.randomAlphanumeric(8);
 			User user = UserUtils.getByNo(no);
-			
 			if(user==null){
 				return no;
 			}

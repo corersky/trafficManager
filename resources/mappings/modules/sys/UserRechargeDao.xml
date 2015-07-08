@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuandu.erp.modules.sys.dao.UserRechargeDao">
+    
+	<sql id="userRechargeColumns">
+		a.id AS "id",
+		a.balance,
+		a.supplier_id AS "supplierId",
+		a.CREATE_BY AS "createBy.id",
+		a.CREATE_DATE AS "createDate",
+		a.UPDATE_BY AS "updateBy.id",
+		a.UPDATE_DATE AS "updateDate",
+		a.REMARKS AS "remarks",
+		a.DEL_FLAG AS "delFlag",
+		u.name AS "createBy.name",
+		p.name AS "supplier.name"
+	</sql>
+	
+	<sql id="useruserRechargeJoins">
+		LEFT JOIN sys_user u ON u.id = a.create_by
+		LEFT JOIN sys_office o ON o.id = u.office_id
+		LEFT JOIN sys_user p ON p.id = a.supplier_id
+	</sql>
+    
+	<select id="get" resultType="UserRecharge">
+		SELECT 
+			<include refid="userRechargeColumns"/>
+		FROM user_recharge a
+		<include refid="useruserRechargeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="UserRecharge">
+		SELECT 
+			<include refid="userRechargeColumns"/>
+		FROM user_recharge a
+		<include refid="useruserRechargeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="supplier != null and supplier.id != '' and supplier.id !=null ">
+			AND a.supplier_id = #{supplier.id}
+		</if>
+		<if test="createBy != null and createBy.id != '' and createBy.id !=null ">
+			AND a.create_by = #{createBy.id}
+		</if>
+		<if test="beginDate != null and beginDate != '' and endDate != null and endDate != '' ">
+			AND a.create_date BETWEEN #{beginDate} AND #{endDate}
+		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
+		
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="UserRecharge">
+		SELECT 
+			<include refid="userRechargeColumns"/>
+		FROM user_recharge a
+		<include refid="useruserRechargeJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO user_recharge(
+			ID,
+			BALANCE,
+			SUPPLIER_ID,
+			CREATE_BY,
+			CREATE_DATE,
+			UPDATE_BY,
+			UPDATE_DATE,
+			REMARKS,
+			DEL_FLAG
+		) VALUES (
+			#{id},
+			#{balance},
+			#{supplier.id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="delete">
+		UPDATE user_recharge SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

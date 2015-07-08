@@ -125,7 +125,6 @@ public class UserController extends BaseController {
 		return "redirect:" + adminPath + "/sys/user/list?repage";
 	}
 	
-
 	/**
 	 * 验证登录名是否有效
 	 * @param oldLoginName
@@ -238,4 +237,5 @@ public class UserController extends BaseController {
 		systemService.updateBlance(user);
 		return user;
 	}
+	
 }

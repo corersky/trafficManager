@@ -29,7 +29,6 @@ public class Recharge extends DataEntity<Recharge> {
 	private String notifyUrl;//回调地址
 	private String orderNo;//运营商订单号
 
-	
 	private Date beginDate;		// 开始日期
 	private Date endDate;		// 结束日期
 	

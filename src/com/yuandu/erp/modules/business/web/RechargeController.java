@@ -17,6 +17,7 @@ import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.business.service.RechargeService;
+import com.yuandu.erp.modules.sys.utils.UserUtils;
 import com.yuandu.erp.webservice.service.ProductService;
 import com.yuandu.erp.webservice.utils.ProductResponse;
 
@@ -52,7 +53,7 @@ public class RechargeController extends BaseController {
 		model.addAttribute("page", page);
 		return "modules/business/rechargeList";
 	}
-
+	
 	@RequiresPermissions("business:recharge:view")
 	@RequestMapping(value = "form")
 	public String form(Recharge recharge, Model model) {

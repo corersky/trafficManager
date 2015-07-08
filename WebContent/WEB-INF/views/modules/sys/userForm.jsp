@@ -80,13 +80,15 @@
 					title="部门" url="/sys/office/treeData?type=2" cssClass="required" notAllowSelectParent="true"/>
 			</div>
 		</div>
-		<div class="control-group">
-			<label class="control-label">渠道标示:</label>
-			<div class="controls">
-				<form:input path="no" id="userNo" htmlEscape="false" maxlength="50" cssClass="required" readonly="true"/>
-				<span class="help-inline"><input class="btn btn-primary" type="button" value="重新生成" onclick="changeNo('${user.no}')"/></span>
+		<c:if test="${not empty user.id }">
+			<div class="control-group">
+				<label class="control-label">渠道标示:</label>
+				<div class="controls">
+					<form:input path="no" id="userNo" htmlEscape="false" maxlength="50" cssClass="required" readonly="true"/>
+					<span class="help-inline"><input class="btn btn-primary" type="button" value="重新生成" onclick="changeNo('${user.no}')"/></span>
+				</div>
 			</div>
-		</div>
+		</c:if>
 		<div class="control-group">
 			<label class="control-label">姓名:</label>
 			<div class="controls">
@@ -126,7 +128,7 @@
 		<div class="control-group">
 			<label class="control-label">商务汇率:</label>
 			<div class="controls">
-				<form:input path="feeRate" htmlEscape="false" maxlength="100" cssClass="required"/>
+				<form:input path="feeRate" htmlEscape="false" maxlength="100" max="1" min="0" cssClass="required"/>
 			</div>
 		</div>
 		<div class="control-group">
