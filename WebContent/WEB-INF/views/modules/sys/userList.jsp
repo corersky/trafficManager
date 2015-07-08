@@ -19,7 +19,7 @@
 		function recharge(id,name,no){
 			
 			var html = '<form id="rechargeForm" action="${ctx}/sys/user/recharge" method="post" class="form-search">'+
-				'<input name="supplierId" type="text" value="'+id+'" class="input-medium"/>'+
+				'<input name="supplierId" type="hidden" value="'+id+'" class="input-medium"/>'+
 				'<ul class="ul-form">'+
 				'<li><label>客户名称：</label><span>'+name+'</span></li>'+
 				'<li><label>客户标识：</label><span>'+no+'</span></li>'+
