@@ -5,19 +5,25 @@
 	<sql id="rechargeColumns">
 		a.id AS "id",
 		a.mobile,
-		a.flow_count AS "flowCount",
+		a.flow_size AS "flowSize",
 		a.type,
+		a.product_id AS "productId",
+		a.partner_orderno AS "partnerOrderNo",
+		a.order_no AS "orderNo",
+		a.notify_url AS "notifyUrl",
 		a.STATUS AS "status",
 		a.CREATE_BY AS "createBy.id",
 		a.CREATE_DATE AS "createDate",
 		a.UPDATE_BY AS "updateBy.id",
 		a.UPDATE_DATE AS "updateDate",
 		a.REMARKS AS "remarks",
-		a.DEL_FLAG AS "delFlag"
+		a.DEL_FLAG AS "delFlag",
+		u.name AS "createBy.name"
 	</sql>
 	
 	<sql id="rechargeJoins">
-		
+		LEFT JOIN sys_user u ON u.id = a.create_by
+		LEFT JOIN sys_office o ON o.id = u.office_id
 	</sql>
     
 	<select id="get" resultType="Recharge">
@@ -46,6 +52,8 @@
 		<if test="beginDate != null and beginDate != '' and endDate != null and endDate != '' ">
 			AND a.create_date BETWEEN #{beginDate} AND #{endDate}
 		</if>
+		<!-- 数据范围过滤 -->
+		${sqlMap.dsf}
 		
 		ORDER BY a.update_date DESC
 	</select>
@@ -63,7 +71,11 @@
 		INSERT INTO business_recharge(
 			ID,
 			TYPE,
-			FLOW_COUNT,
+			FLOW_SIZE,
+			PRODUCT_ID,
+			PARTNER_ORDERNO,
+			ORDER_NO,
+			NOTIFY_URL,
 			STATUS,
 			CREATE_BY,
 			CREATE_DATE,
@@ -74,7 +86,11 @@
 		) VALUES (
 			#{id},
 			#{type},
-			#{flowCount},
+			#{flowSize},
+			#{productId},
+			#{partnerOrderNo},
+			#{orderNo},
+			#{notifyUrl},
 			#{status},
 			#{createBy.id},
 			#{createDate},
@@ -89,11 +105,18 @@
 		UPDATE business_recharge SET 	
 			TYPE = #{type},
 			STATUS = #{status},
-			FLOW_COUNT = #{flowCount},
+			FLOW_SIZE = #{flowSize},
 			UPDATE_BY = #{updateBy.id},
 			UPDATE_DATE = #{updateDate},
 			REMARKS = #{remarks}
 		WHERE id = #{id}
+	</update>
+	
+	<update id="updateStatus">
+		UPDATE business_recharge SET 	
+			STATUS = #{status},
+			UPDATE_DATE = #{updateDate}
+		WHERE PARTNER_ORDERNO = #{partnerOrderNo}
 	</update>
 	
 	<update id="delete">
@@ -101,5 +124,9 @@
 			del_flag = #{DEL_FLAG_DELETE}
 		WHERE id = #{id}
 	</update>
+	
+	<select id="createOrder" resultType="string">
+		SELECT NEXTVAL('recharge_order') FROM DUAL;
+	</select>
 	
 </mapper>

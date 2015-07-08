@@ -1,11 +1,15 @@
-package com.yuandu.erp.webservice.bean;
+package com.yuandu.erp.modules.business.entity;
 
-import java.io.Serializable;
+import com.yuandu.erp.common.persistence.DataEntity;
 
-public class PartnerOrderPojo implements Serializable{
+/**
+ * 运营商订单信息
+ * @author ivoter
+ */
+public class PartnerOrder extends DataEntity<PartnerOrder>{
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private String orderNo;			//		流量掌厅的订单号	
 	private String partnerOrderNo;	//		合作方的订单号	
 	private String mobile;			//		手机号	
@@ -18,7 +22,7 @@ public class PartnerOrderPojo implements Serializable{
 	private String flowType;		//		流量类型	
 	private Integer count;			//		购买的商品数量	
 	private Double totalFee	;		//	    合计金额	
-	private Integer status;			//		订单状态	0：初始状态 1：成功 2：失败 3：异常 4：处理中5：未知
+	private String status;			//		订单状态	0：初始状态 1：成功 2：失败 3：异常 4：处理中5：未知
 	private String notifyUrl;		//		回调地址	
 	
 	public String getOrderNo() {
@@ -93,10 +97,10 @@ public class PartnerOrderPojo implements Serializable{
 	public void setTotalFee(Double totalFee) {
 		this.totalFee = totalFee;
 	}
-	public Integer getStatus() {
+	public String getStatus() {
 		return status;
 	}
-	public void setStatus(Integer status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 	public String getNotifyUrl() {
@@ -105,5 +109,4 @@ public class PartnerOrderPojo implements Serializable{
 	public void setNotifyUrl(String notifyUrl) {
 		this.notifyUrl = notifyUrl;
 	}
-
 }

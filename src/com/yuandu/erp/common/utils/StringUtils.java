@@ -398,6 +398,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
         Pattern p = Pattern.compile("^(((13[0-9]{1})|(15[0-9]{1})|(18[0,5-9]))\\d{8})$");  
         Matcher m = p.matcher(mobiles);  
         return m.matches();  
-    }  
+    }
+
+	public static String null2Empty(String notifyUrl) {
+		if(notifyUrl==null){
+			notifyUrl = "";
+		}
+		return notifyUrl;
+	}  
     
 }

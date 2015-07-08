@@ -10,7 +10,8 @@
     	a.password,
     	a.no,
 		a.name,
-		a.flow_count AS "flowCount",
+		a.balance,
+		a.fee_rate AS "feeRate",	
 		a.email,
 		a.phone,
 		a.mobile,
@@ -59,6 +60,15 @@
 		LEFT JOIN sys_user ou ON ou.id = o.primary_person
 		LEFT JOIN sys_user ou2 ON ou2.id = o.deputy_person
     </sql>
+	
+	<!-- 根据编号获得用户 -->
+	<select id="getByNo" resultType="User">
+		SELECT
+			<include refid="userColumns"/>
+		FROM sys_user a
+		<include refid="userJoins"/>
+		WHERE a.no = #{no}
+	</select>
 	
 	<!-- 根据编号获得用户 -->
 	<select id="get" resultType="User">
@@ -154,7 +164,8 @@
 			password, 
 			no, 
 			name, 
-			flow_count,
+			balance,
+			fee_rate,
 			email, 
 			phone, 
 			mobile, 
@@ -175,7 +186,8 @@
 			#{password}, 
 			#{no}, 
 			#{name}, 
-			#{flowCount},
+			#{balance},
+			#{feeRate},
 			#{email}, 
 			#{phone}, 
 			#{mobile}, 
@@ -218,8 +230,8 @@
 	</delete>
 	
 	<!-- 更新用户 -->
-	<update id="updateFlowCount">
-		UPDATE sys_user SET flow_count = flow_count+#{flowCount}  WHERE id = #{id}
+	<update id="updateBlance">
+		UPDATE sys_user SET balance = balance+#{balance}  WHERE id = #{id}
 	</update>
 	
 	<!-- 插入用户和角色关联表数据 -->
@@ -247,6 +259,12 @@
 	<update id="updatePasswordById">
 		UPDATE sys_user SET 
 			password = #{password} 
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateUserNo">
+		UPDATE sys_user SET 
+			no = #{no} 
 		WHERE id = #{id}
 	</update>
 	

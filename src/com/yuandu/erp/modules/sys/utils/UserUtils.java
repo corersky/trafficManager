@@ -38,6 +38,7 @@ public class UserUtils {
 	public static final String USER_CACHE_ID_ = "id_";
 	public static final String USER_CACHE_LOGIN_NAME_ = "ln";
 	public static final String USER_CACHE_LIST_BY_OFFICE_ID_ = "oid_";
+	public static final String USER_CACHE_NO_ = "no_";
 
 	public static final String CACHE_ROLE_LIST = "roleList";
 	public static final String CACHE_MENU_LIST = "menuList";
@@ -60,6 +61,23 @@ public class UserUtils {
 			user.setRoleList(roleDao.findList(new Role(user)));
 			CacheUtils.put(USER_CACHE, USER_CACHE_ID_ + user.getId(), user);
 			CacheUtils.put(USER_CACHE, USER_CACHE_LOGIN_NAME_ + user.getLoginName(), user);
+		}
+		return user;
+	}
+	
+	/**
+	 * 根据编号获取用户
+	 * @param id
+	 * @return 取不到返回null
+	 */
+	public static User getByNo(String no){
+		User user = (User)CacheUtils.get(USER_CACHE, USER_CACHE_NO_ + no);
+		if (user ==  null){
+			user = userDao.getByNo(no);
+			if (user == null){
+				return null;
+			}
+			CacheUtils.put(USER_CACHE, USER_CACHE_NO_ + user.getNo(), user);
 		}
 		return user;
 	}
@@ -106,6 +124,7 @@ public class UserUtils {
 		if (user.getOffice() != null && user.getOffice().getId() != null){
 			CacheUtils.remove(USER_CACHE, USER_CACHE_LIST_BY_OFFICE_ID_ + user.getOffice().getId());
 		}
+		CacheUtils.remove(USER_CACHE, USER_CACHE_NO_ + user.getNo());//清楚编码
 	}
 	
 	/**
@@ -279,13 +298,5 @@ public class UserUtils {
 //		getCacheMap().remove(key);
 		getSession().removeAttribute(key);
 	}
-	
-//	public static Map<String, Object> getCacheMap(){
-//		Principal principal = getPrincipal();
-//		if(principal!=null){
-//			return principal.getCacheMap();
-//		}
-//		return new HashMap<String, Object>();
-//	}
-	
+
 }

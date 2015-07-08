@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.shiro.session.Session;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,8 +148,6 @@ public class SystemService extends BaseService implements InitializingBean {
 		userDao.updateUserInfo(user);
 		// 清除用户缓存
 		UserUtils.clearCache(user);
-//		// 清除权限缓存
-//		systemRealm.clearAllCachedAuthorizationInfo();
 	}
 	
 	@Transactional(readOnly = false)
@@ -156,8 +155,6 @@ public class SystemService extends BaseService implements InitializingBean {
 		userDao.delete(user);
 		// 清除用户缓存
 		UserUtils.clearCache(user);
-//		// 清除权限缓存
-//		systemRealm.clearAllCachedAuthorizationInfo();
 	}
 	
 	@Transactional(readOnly = false)
@@ -168,8 +165,6 @@ public class SystemService extends BaseService implements InitializingBean {
 		// 清除用户缓存
 		user.setLoginName(loginName);
 		UserUtils.clearCache(user);
-//		// 清除权限缓存
-//		systemRealm.clearAllCachedAuthorizationInfo();
 	}
 	
 	@Transactional(readOnly = false)
@@ -184,12 +179,51 @@ public class SystemService extends BaseService implements InitializingBean {
 	}
 	
 	/**
+	 * 跟新用户余额
+	 * @param user
+	 */
+	@Transactional(readOnly = false)
+	public void updateBlance(User user) {
+		userDao.updateBlance(user);
+		// 清除用户缓存
+		UserUtils.clearCache(user);
+	}
+	
+	/**
+	 * 跟新用户余额
+	 * @param user
+	 */
+	@Transactional(readOnly = false)
+	public String changeUserNo(String oldNo) {
+		String newNo = createNewNo();
+		
+		User user = UserUtils.getByNo(oldNo);
+		user.setNo(newNo);
+		userDao.updateUserNo(user);
+		// 清除用户缓存
+		UserUtils.clearCache(user);
+		
+		return newNo;
+	}
+	
+	/**
 	 * 生成安全的密码，生成随机的16位salt并经过1024次 sha-1 hash
 	 */
 	public static String entryptPassword(String plainPassword) {
 		byte[] salt = Digests.generateSalt(SALT_SIZE);
 		byte[] hashPassword = Digests.sha1(plainPassword.getBytes(), salt, HASH_INTERATIONS);
 		return Encodes.encodeHex(salt)+Encodes.encodeHex(hashPassword);
+	}
+	
+	private static String createNewNo(){
+		while(true){
+			String no = RandomStringUtils.randomAlphanumeric(8);
+			User user = UserUtils.getByNo(no);
+			
+			if(user==null){
+				return no;
+			}
+		}
 	}
 	
 	/**
@@ -211,8 +245,6 @@ public class SystemService extends BaseService implements InitializingBean {
 	public Collection<Session> getActiveSessions(){
 		return sessionDao.getActiveSessions(false);
 	}
-	
-	//-- Role Service --//
 	
 	public Role getRole(String id) {
 		return roleDao.get(id);
@@ -367,8 +399,6 @@ public class SystemService extends BaseService implements InitializingBean {
 		menuDao.delete(menu);
 		// 清除用户菜单缓存
 		UserUtils.removeCache(UserUtils.CACHE_MENU_LIST);
-//		// 清除权限缓存
-//		systemRealm.clearAllCachedAuthorizationInfo();
 		// 清除日志相关缓存
 		CacheUtils.remove(LogUtils.CACHE_MENU_NAME_PATH_MAP);
 	}

@@ -43,6 +43,15 @@
 			$("#searchForm").submit();
 	    	return false;
 	    }
+		
+		function buyFlow(productId){
+
+			$('#mobile').val($('#mobileSearch').val());
+			$('#productId').val(productId);
+			
+			$("#saveForm").submit();
+			return false;
+		}
 	</script>
 </head>
 <body>
@@ -54,7 +63,7 @@
 		<div class="control-group">
 			<label class="control-label">客户手机号:</label>
 			<div class="controls">
-				<form:input path="mobile" htmlEscape="false" maxlength="50" class="required mobile"/>
+				<form:input path="mobile" id="mobileSearch" htmlEscape="false" maxlength="50" class="required mobile"/>
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();"/>
 			</div>
 		</div>
@@ -76,20 +85,22 @@
 			</shiro:hasPermission>
 		</tr></thead>
 		<tbody>
-		<c:forEach items="${list}" var="product">
+		<c:forEach items="${result.data}" var="product">
 			<tr>
 				<td>${product.name}</td>
-				<td>${product.operators}</td>
-				<td>${product.cityType}</td>
+				<td>${fns:getDictLabel(product.operators, 'recharge_operators', '')}</td>
+				<td>${fns:getDictLabel(product.cityType, 'recharge_citytype', '')}</td>
 				<td>${product.cityName}</td>
 				<td>${product.fee}</td>
 				<td>${product.flowSize }MB</td>
-				<td>${product.status }</td>
-				<td>${product.tagNet }</td>
+				<td>${fns:getDictLabel(product.status, 'recharge_status', '不可用')}</td>
+				<td>${fns:getDictLabel(product.tagNet, 'recharge_tagnet', '')}</td>
 				<td>${product.salesCount }</td>
 				<shiro:hasPermission name="business:recharge:edit"><td>
-    				<a href="${ctx}/business/recharge/form?id=${user.id}">查看</a>
-					<a href="${ctx}/business/recharge/form?id=${user.id}">购买</a>
+    				<a href="${product.id}">查看</a>
+    				<c:if test="${product.status eq '1' and  product.salesCount>0}">
+						<a href="javascript:void(0)" onclick="buyFlow(${product.id});">购买</a>
+    				</c:if>
 				</td></shiro:hasPermission>
 			</tr>
 		</c:forEach>
@@ -98,5 +109,10 @@
 	<div class="form-actions">
 		<input id="btnCancel" class="btn" type="button" value="返 回" onclick="history.go(-1)"/>
 	</div>
+	
+	<form:form id="saveForm" modelAttribute="recharge" action="${ctx}/business/recharge/save" method="post">
+		<input type="hidden" name="mobile" id="mobile" value="" />
+		<input type="hidden" name="productId" id="productId" value="" />
+	</form:form>
 </body>
 </html>

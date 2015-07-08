@@ -2,6 +2,8 @@ package com.yuandu.erp.modules.sys.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.yuandu.erp.common.persistence.CrudDao;
 import com.yuandu.erp.common.persistence.annotation.MyBatisDao;
 import com.yuandu.erp.modules.sys.entity.User;
@@ -68,9 +70,22 @@ public interface UserDao extends CrudDao<User> {
 	public int updateUserInfo(User user);
 
 	/**
-	 * 更新用户流量
-	 * @param flowCount
+	 * 更新用户余额
+	 * @param user
 	 */
-	public void updateFlowCount(User user);
+	public void updateBlance(User user);
+
+	/**
+	 * 获取用户根据 标示
+	 * @param no
+	 * @return
+	 */
+	public User getByNo(@Param(value="no") String no);
+
+	/**
+	 * 更新用户的新标示
+	 * @param user
+	 */
+	public void updateUserNo(User user);
 
 }

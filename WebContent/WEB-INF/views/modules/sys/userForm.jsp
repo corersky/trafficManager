@@ -30,6 +30,26 @@
 				}
 			});
 		});
+		
+		function changeNo(oldNo){
+			top.$.jBox.confirm("确认要用户标识吗？","系统提示",function(v,h,f){
+				if(v=="ok"){
+					$.ajax({
+						url : '${ctx}/sys/user/changeNo',
+						type : 'GET',
+						dataType : 'JSON',
+						async : true,
+						data : {
+							oldNo : oldNo
+						},
+						success : function(data) {
+							$('#userNo').val(data.no);
+						}
+					});
+				}
+			},{buttonsFocus:1});
+			top.$('.jbox-body .jbox-icon').css('top','55px');
+		}
 	</script>
 </head>
 <body>
@@ -61,10 +81,10 @@
 			</div>
 		</div>
 		<div class="control-group">
-			<label class="control-label">工号:</label>
+			<label class="control-label">渠道标示:</label>
 			<div class="controls">
-				<form:input path="no" htmlEscape="false" maxlength="50" class="required"/>
-				<span class="help-inline"><font color="red">*</font> </span>
+				<form:input path="no" id="userNo" htmlEscape="false" maxlength="50" cssClass="required" readonly="true"/>
+				<span class="help-inline"><input class="btn btn-primary" type="button" value="重新生成" onclick="changeNo('${user.no}')"/></span>
 			</div>
 		</div>
 		<div class="control-group">
@@ -95,6 +115,18 @@
 			<div class="controls">
 				<input id="confirmNewPassword" name="confirmNewPassword" type="password" value="" maxlength="50" minlength="3" equalTo="#newPassword"/>
 				<c:if test="${empty user.id}"><span class="help-inline"><font color="red">*</font> </span></c:if>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">可用余额:</label>
+			<div class="controls">
+				${user.balance }
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">商务汇率:</label>
+			<div class="controls">
+				<form:input path="feeRate" htmlEscape="false" maxlength="100" cssClass="required"/>
 			</div>
 		</div>
 		<div class="control-group">

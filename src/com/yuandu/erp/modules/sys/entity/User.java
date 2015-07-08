@@ -42,7 +42,8 @@ public class User extends DataEntity<User> {
 	
 	private String oldLoginIp;	// 上次登陆IP
 	private Date oldLoginDate;	// 上次登陆日期
-	private Integer flowCount;	// 可用流量
+	private Double balance;	// 可用余额
+	private Double feeRate;	//商务汇率
 	
 	private Role role;	// 根据角色查询用户条件
 	
@@ -98,12 +99,20 @@ public class User extends DataEntity<User> {
 		this.company = company;
 	}
 	
-	public Integer getFlowCount() {
-		return flowCount;
+	public Double getBalance() {
+		return balance;
 	}
 
-	public void setFlowCount(Integer flowCount) {
-		this.flowCount = flowCount;
+	public void setBalance(Double balance) {
+		this.balance = balance;
+	}
+
+	public Double getFeeRate() {
+		return feeRate;
+	}
+
+	public void setFeeRate(Double feeRate) {
+		this.feeRate = feeRate;
 	}
 
 	@JsonIgnore

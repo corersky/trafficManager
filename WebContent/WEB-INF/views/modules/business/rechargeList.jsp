@@ -59,7 +59,7 @@
 		<c:forEach items="${page.list}" var="recharge">
 			<tr>
 				<td>${recharge.mobile}</td>
-				<td>${recharge.flowCount}</td>
+				<td>${recharge.flowSize}</td>
 				<td>${recharge.type}</td>
 				<td>${fns:getDictLabel(recharge.status, 'business_recharge_type', '')}</td>
 				<td>${recharge.createBy.name}</td>
@@ -73,5 +73,6 @@
 		</tbody>
 	</table>
 	<div class="pagination">${page}</div>
+	
 </body>
 </html>

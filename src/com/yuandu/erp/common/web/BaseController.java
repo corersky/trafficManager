@@ -188,11 +188,6 @@ public abstract class BaseController {
 			public void setAsText(String text) {
 				setValue(DateUtils.parseDate(text));
 			}
-//			@Override
-//			public String getAsText() {
-//				Object value = getValue();
-//				return value != null ? DateUtils.formatDateTime((Date)value) : "";
-//			}
 		});
 	}
 	

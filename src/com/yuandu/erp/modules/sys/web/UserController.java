@@ -219,4 +219,23 @@ public class UserController extends BaseController {
 		return mapList;
 	}
     
+	@RequiresPermissions("sys:user:edit")
+	@RequestMapping(value = "changeNo")
+	public @ResponseBody User changeNo(@RequestParam String oldNo){
+		User user = new User();
+		user.setNo(systemService.changeUserNo(oldNo));
+		
+		return user;
+	}
+	
+	@RequiresPermissions("sys:user:edit")
+	@RequestMapping(value = "recharge")
+	public @ResponseBody User recharge(@RequestParam(required=true) String supplierId,@RequestParam(required=true) Double balance){
+		User user = new User();
+		user.setId(supplierId);
+		user.setBalance(balance);
+		
+		systemService.updateBlance(user);
+		return user;
+	}
 }

@@ -9,6 +9,17 @@ import com.yuandu.erp.modules.business.entity.Recharge;
  */
 @MyBatisDao
 public interface RechargeDao extends CrudDao<Recharge> {
-	
+
+	/**
+	 * 生成编码
+	 * @return
+	 */
+	public String createOrder();
+
+	/**
+	 * 更新状态
+	 * @param entity
+	 */
+	public void updateStatus(Recharge entity);
 	
 }

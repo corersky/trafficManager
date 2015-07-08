@@ -6,19 +6,7 @@
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			$("#btnExport").click(function(){
-				top.$.jBox.confirm("确认要导出用户数据吗？","系统提示",function(v,h,f){
-					if(v=="ok"){
-						$("#searchForm").attr("action","${ctx}/sys/user/export");
-						$("#searchForm").submit();
-					}
-				},{buttonsFocus:1});
-				top.$('.jbox-body .jbox-icon').css('top','55px');
-			});
-			$("#btnImport").click(function(){
-				$.jBox($("#importBox").html(), {title:"导入数据", buttons:{"关闭":true}, 
-					bottomText:"导入文件不能超过5M，仅允许导入“xls”或“xlsx”格式文件！"});
-			});
+			
 		});
 		function page(n,s){
 			if(n) $("#pageNo").val(n);
@@ -27,17 +15,29 @@
 			$("#searchForm").submit();
 	    	return false;
 	    }
+		
+		function recharge(id,name,no){
+			
+			var html = '<form id="rechargeForm" action="${ctx}/sys/user/recharge" method="post" class="form-search">'+
+				'<input name="supplierId" type="text" value="'+id+'" class="input-medium"/>'+
+				'<ul class="ul-form">'+
+				'<li><label>客户名称：</label><span>'+name+'</span></li>'+
+				'<li><label>客户标识：</label><span>'+no+'</span></li>'+
+				'<li><label>充值金额：</label><input name="balance" value="0" type="text" class="required input-medium"/></li>'+
+				'</ul></form>';
+			
+			$.jBox(html, {title:"导入数据", buttons:{"充值":true,"关闭":false},submit:function(v,h,f){
+				if(v){
+					//提交表单
+					$("#rechargeForm").ajaxSubmit(function (responseResult) {
+						$("#searchForm").submit();
+					});
+				}
+			}});
+		}
 	</script>
 </head>
 <body>
-	<div id="importBox" class="hide">
-		<form id="importForm" action="${ctx}/sys/user/import" method="post" enctype="multipart/form-data"
-			class="form-search" style="padding-left:20px;text-align:center;" onsubmit="loading('正在导入，请稍等...');"><br/>
-			<input id="uploadFile" name="file" type="file" style="width:330px"/><br/><br/>　　
-			<input id="btnImportSubmit" class="btn btn-primary" type="submit" value="   导    入   "/>
-			<a href="${ctx}/sys/user/import/template">下载模板</a>
-		</form>
-	</div>
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="${ctx}/sys/user/list">用户列表</a></li>
 		<shiro:hasPermission name="sys:user:edit"><li><a href="${ctx}/sys/user/form">用户添加</a></li></shiro:hasPermission>
@@ -55,26 +55,25 @@
 				title="部门" url="/sys/office/treeData?type=2" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/></li>
 			<li><label>姓&nbsp;&nbsp;&nbsp;名：</label><form:input path="name" htmlEscape="false" maxlength="50" class="input-medium"/></li>
 			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();"/>
-				<input id="btnExport" class="btn btn-primary" type="button" value="导出"/>
-				<input id="btnImport" class="btn btn-primary" type="button" value="导入"/></li>
 			<li class="clearfix"></li>
 		</ul>
 	</form:form>
 	<sys:message content="${message}"/>
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
-		<thead><tr><th>归属公司</th><th>归属部门</th><th class="sort-column login_name">登录名</th><th class="sort-column name">姓名</th><th>电话</th><th>手机</th><%--<th>角色</th> --%><shiro:hasPermission name="sys:user:edit"><th>操作</th></shiro:hasPermission></tr></thead>
+		<thead><tr><th>归属公司</th><th>渠道标识</th><th class="sort-column login_name">登录名</th><th class="sort-column name">姓名</th><th>余额</th><th>费率</th><th>手机</th><shiro:hasPermission name="sys:user:edit"><th>操作</th></shiro:hasPermission></tr></thead>
 		<tbody>
 		<c:forEach items="${page.list}" var="user">
 			<tr>
 				<td>${user.company.name}</td>
-				<td>${user.office.name}</td>
+				<td>${user.no}</td>
 				<td><a href="${ctx}/sys/user/form?id=${user.id}">${user.loginName}</a></td>
 				<td>${user.name}</td>
-				<td>${user.phone}</td>
-				<td>${user.mobile}</td><%--
-				<td>${user.roleNames}</td> --%>
+				<td>${user.balance}</td>
+				<td>${user.feeRate}</td>
+				<td>${user.mobile}</td>
 				<shiro:hasPermission name="sys:user:edit"><td>
     				<a href="${ctx}/sys/user/form?id=${user.id}">修改</a>
+    				<a href="javascript:void(0);" onclick="recharge('${user.id}','${user.name }','${user.no }')">充值</a>
 					<a href="${ctx}/sys/user/delete?id=${user.id}" onclick="return confirmx('确认要删除该用户吗？', this.href)">删除</a>
 				</td></shiro:hasPermission>
 			</tr>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yuandu.erp.modules.business.dao.PartnerOrderDao">
+    
+	<sql id="partnerOrderColumns">
+		a.id AS "id",
+		a.order_no AS "orderNo",
+		a.partner_orderno AS "partnerOrderNo",
+		a.mobile,
+		a.partner_id AS "partnerId",
+		a.operators,
+		a.product_id AS "productId",
+		a.product_name AS "productName",
+		a.flow_size AS "flowSize",
+		a.fee,
+		a.flow_type AS "flowType",
+		a.count,
+		a.total_fee AS "totalFee",
+		a.status AS "status",
+		a.notify_url AS "notifyUrl",
+		a.CREATE_BY AS "createBy.id",
+		a.CREATE_DATE AS "createDate",
+		a.UPDATE_BY AS "updateBy.id",
+		a.UPDATE_DATE AS "updateDate",
+		a.REMARKS AS "remarks",
+		a.DEL_FLAG AS "delFlag"
+	</sql>
+	
+	<sql id="partnerOrderJoins">
+		
+	</sql>
+    
+	<select id="get" resultType="PartnerOrder">
+		SELECT 
+			<include refid="partnerOrderColumns"/>
+		FROM business_partnerorder a
+		<include refid="partnerOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getByPartnerOrder" resultType="PartnerOrder">
+		SELECT 
+			<include refid="partnerOrderColumns"/>
+		FROM business_partnerorder a
+		<include refid="partnerOrderJoins"/>
+		WHERE a.partner_orderno = #{partnerOrderNo}
+	</select>
+	
+	<select id="findList" resultType="PartnerOrder">
+		SELECT 
+			<include refid="partnerOrderColumns"/>
+		FROM business_partnerorder a
+		<include refid="partnerOrderJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="mobile != null and mobile != ''">
+			AND a.mobile LIKE '%${mobile}%'
+		</if>
+		<if test="orderNo != null and orderNo != ''">
+			AND a.order_no = #{orderNo}
+		</if>
+		<if test="status != null and status != ''">
+			AND a.STATUS = #{status}
+		</if>
+		<if test="flowType != null and flowType != '' ">
+			AND a.flow_type = #{flowType}
+		</if>
+		<if test="partnerOrderNo != null and partnerOrderNo != '' ">
+			AND a.partner_orderno = #{partnerOrderNo}
+		</if>
+		<if test="productId != null and productId != '' ">
+			AND a.product_id = #{productId}
+		</if>
+		<if test="productName != null and productName != '' ">
+			AND a.product_name LIKE '%${productName}%'
+		</if>
+		
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<select id="findAllList" resultType="PartnerOrder">
+		SELECT 
+			<include refid="partnerOrderColumns"/>
+		FROM business_partnerorder a
+		<include refid="partnerOrderJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} 
+		ORDER BY a.update_date DESC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO business_partnerorder(
+			ID,
+			order_no,
+			partner_orderno,
+			mobile,
+			partner_id,
+			operators,
+			product_id,
+			product_name,
+			flow_size,
+			fee,
+			flow_type,
+			count,
+			total_fee,
+			status,
+			CREATE_BY,
+			CREATE_DATE,
+			UPDATE_BY,
+			UPDATE_DATE,
+			REMARKS,
+			DEL_FLAG
+		) VALUES (
+			#{id},
+			#{orderNo},
+			#{partnerOrderNo},
+			#{mobile},
+			#{partnerId},
+			#{operators},
+			#{productId},
+			#{productName},
+			#{flowSize},
+			#{fee},
+			#{flowType},
+			#{count},
+			#{totalFee},
+			#{status},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="updateStatus">
+		UPDATE business_partnerorder SET 	
+			STATUS = #{status},
+			UPDATE_DATE = #{updateDate}
+		WHERE PARTNER_ORDERNO = #{partnerOrderNo}
+	</update>
+	
+	<update id="delete">
+		UPDATE business_partnerorder SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="createOrder" resultType="string">
+		SELECT NEXTVAL('recharge_order') FROM DUAL;
+	</select>
+	
+</mapper>

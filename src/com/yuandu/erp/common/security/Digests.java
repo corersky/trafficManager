@@ -137,7 +137,6 @@ public class Digests {
             byteArray[i] = (byte) charArray[i];
  
         byte[] md5Bytes = md5.digest(byteArray);
- 
         StringBuffer hexValue = new StringBuffer();
  
         for (int i = 0; i < md5Bytes.length; i++) {
@@ -146,7 +145,6 @@ public class Digests {
                 hexValue.append("0");
             hexValue.append(Integer.toHexString(val));
         }
- 
         return hexValue.toString();
     }
     
