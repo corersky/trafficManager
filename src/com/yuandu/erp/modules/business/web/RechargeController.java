@@ -72,10 +72,6 @@ public class RechargeController extends BaseController {
 		}
 		try {
 			// 检验基础项目
-			if(recharge.getFlowSize()<=0){
-				addMessage(redirectAttributes, "充值流量不能为空，不能操作！");
-				return "redirect:" + adminPath + "/business/recharge/form?id="+recharge.getId();
-			}
 			if (StringUtils.isBlank(recharge.getMobile())){
 				addMessage(redirectAttributes, "手机号不能为空，不能操作！");
 				return "redirect:" + adminPath + "/business/recharge/form?id="+recharge.getId();
@@ -84,6 +80,9 @@ public class RechargeController extends BaseController {
 				addMessage(redirectAttributes, "购买产品不能为空，不能操作！");
 				return "redirect:" + adminPath + "/business/recharge/form?id="+recharge.getId();
 			}
+			//生成订单编号
+			String partnerOrderNo = rechargeService.createOrder();
+			recharge.setPartnerOrderNo(partnerOrderNo);
 			rechargeService.saveRecharge(recharge);
 			addMessage(redirectAttributes, "保存通知'" + recharge.getMobile() + "'成功");
 		} catch (Exception e) {

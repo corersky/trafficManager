@@ -61,7 +61,7 @@
 				<td>${recharge.mobile}</td>
 				<td>${recharge.flowSize}</td>
 				<td>${recharge.type}</td>
-				<td>${fns:getDictLabel(recharge.status, 'business_recharge_type', '')}</td>
+				<td>${fns:getDictLabel(recharge.status, 'recharge_status', '')}</td>
 				<td>${recharge.createBy.name}</td>
 				<td><fmt:formatDate value="${recharge.createDate}" type="both"/></td>
 				<shiro:hasPermission name="business:recharge:edit"><td>

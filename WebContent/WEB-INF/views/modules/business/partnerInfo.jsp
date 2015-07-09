@@ -43,11 +43,11 @@
 				</tr>
 				<tr>
 					<td class="tit">流量类型</td>
-					<td>${partner.flowType}</td>
+					<td>${fns:getDictLabel(partner.flowType, 'recharge_tagnet', '')}</td>
 					<td class="tit">合计金额</td>
 					<td>${partner.totalFee}</td>
 					<td class="tit">订单状态</td>
-					<td>${partner.status}</td>
+					<td>${fns:getDictLabel(partner.status, 'recharge_status', '不可用')}</td>
 				</tr>
 			</table>
 		</fieldset>

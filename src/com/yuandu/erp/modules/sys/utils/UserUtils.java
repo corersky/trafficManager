@@ -8,9 +8,10 @@ import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 
+import com.yuandu.erp.common.service.BaseService;
 import com.yuandu.erp.common.utils.CacheUtils;
 import com.yuandu.erp.common.utils.SpringContextHolder;
-import com.yuandu.erp.common.service.BaseService;
+import com.yuandu.erp.modules.business.entity.PartnerOrder;
 import com.yuandu.erp.modules.sys.dao.AreaDao;
 import com.yuandu.erp.modules.sys.dao.MenuDao;
 import com.yuandu.erp.modules.sys.dao.OfficeDao;
@@ -22,6 +23,7 @@ import com.yuandu.erp.modules.sys.entity.Office;
 import com.yuandu.erp.modules.sys.entity.Role;
 import com.yuandu.erp.modules.sys.entity.User;
 import com.yuandu.erp.modules.sys.security.SystemAuthorizingRealm.Principal;
+import com.yuandu.erp.webservice.utils.ProductCacheUtil;
 
 /**
  * 用户工具类
@@ -99,6 +101,42 @@ public class UserUtils {
 			CacheUtils.put(USER_CACHE, USER_CACHE_LOGIN_NAME_ + user.getLoginName(), user);
 		}
 		return user;
+	}
+	
+	/**
+	 * 更新余额
+	 * @return
+	 * @throws Exception 
+	 */
+	public static void updateBalance(String partnerOrderNo, String status) throws Exception{
+		//判断工单是否已经扣费
+		PartnerOrder order = ProductCacheUtil.getPartnerOrder(partnerOrderNo);
+		
+		if(order!=null&&!"1".equals(order.getStatus())&&"1".equals(status)){//符合扣费
+			User user = UserUtils.get(order.getCreateBy().getId());
+			//更新余额
+			double balance = -order.getFee();
+			user.setBalance(balance);
+			
+			userDao.updateBlance(user);
+			UserUtils.clearCache(user);//清楚缓存
+		}
+	}
+	
+	/**
+	 * 更新余额
+	 * @return
+	 * @throws Exception 
+	 */
+	public static void updateBalance(User user,Double balance, String status) throws Exception{
+		if("1".equals(status)){//符合扣费
+			//更新余额
+			double update = -balance;
+			user.setBalance(update);
+			
+			userDao.updateBlance(user);
+			UserUtils.clearCache(user);//清楚缓存
+		}
 	}
 	
 	/**

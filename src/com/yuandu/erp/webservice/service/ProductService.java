@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.yuandu.erp.modules.business.entity.PartnerOrder;
 import com.yuandu.erp.modules.business.entity.Recharge;
+import com.yuandu.erp.modules.business.service.PartnerOrderService;
 import com.yuandu.erp.modules.business.service.RechargeService;
 import com.yuandu.erp.modules.sys.entity.User;
 import com.yuandu.erp.modules.sys.utils.UserUtils;
@@ -23,6 +24,8 @@ public class ProductService {
 	
 	@Autowired
 	private RechargeService rechargeService;
+	@Autowired
+	private PartnerOrderService partnerOrderService;
 
 	/*
 	 * 说明:供合作方根据手机号过滤此手机号能使用的商品
@@ -85,6 +88,9 @@ public class ProductService {
 			recharge.setMobile(mobile);
 			recharge.setProductId(product);
 			recharge.setCreateBy(user);
+			//生成订单编号
+			String partnerOrderNo = rechargeService.createOrder();
+			recharge.setPartnerOrderNo(partnerOrderNo);
 		
 			return rechargeService.saveRecharge(recharge);
 		} catch (Exception e) {
@@ -93,6 +99,17 @@ public class ProductService {
 		}
 		
 		return response;
+	}
+
+	public void notifyStatus(String partnerOrderNo, String status) throws Exception {
+		
+		UserUtils.updateBalance(partnerOrderNo,status);//需要先更新余额  后更新状态
+		//更新充值记录
+		rechargeService.updateStatus(partnerOrderNo,status);
+		//更新运营商订单
+		partnerOrderService.updateStatus(partnerOrderNo,status);
+		ProductCacheUtil.clearCache(partnerOrderNo);
+
 	}
 	
 }

@@ -52,11 +52,7 @@ public class ProductCacheUtil {
 		return order;
 	}
 
-	public static void updatePartnerOrder(String partnerOrderNo, String status) throws Exception {
-		PartnerOrder order = getPartnerOrder(partnerOrderNo);
-		//更新缓存
-		if (order!=null){
-			order.setStatus(status);
-		}
+	public static void clearCache(String partnerOrderNo){
+		CacheUtils.remove(PUBLIC_KEY_CACHE, PUBLIC_KEY_CACHE_ID + partnerOrderNo);
 	}
 }

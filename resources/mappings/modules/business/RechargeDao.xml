@@ -71,6 +71,7 @@
 		INSERT INTO business_recharge(
 			ID,
 			TYPE,
+			MOBILE,
 			FLOW_SIZE,
 			PRODUCT_ID,
 			PARTNER_ORDERNO,
@@ -86,6 +87,7 @@
 		) VALUES (
 			#{id},
 			#{type},
+			#{mobile},
 			#{flowSize},
 			#{productId},
 			#{partnerOrderNo},

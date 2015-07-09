@@ -42,10 +42,8 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 	
 	@Transactional(readOnly = false)
 	public DefaultResponse saveRecharge(Recharge recharge) throws Exception {
+		
 		recharge.preInsert();
-		//生成订单编号
-		String partnerOrderNo = dao.createOrder();
-		recharge.setPartnerOrderNo(partnerOrderNo);
 		// 先调用充值接口
 		DefaultResponse response = BusinessUtil.buyFlow(recharge);
 		String orderNo = response.getData().get("orderNo");
@@ -53,13 +51,16 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 		recharge.setNotifyUrl(Recharge.notify_url);
 		
 		// 调用查询接口
-		PartnerOrder order = ProductCacheUtil.getPartnerOrder(partnerOrderNo);
-		recharge.setStatus(order.getStatus());
+		PartnerOrder order = ProductCacheUtil.getPartnerOrder(recharge.getPartnerOrderNo());
+		String status = order.getStatus();
+		
+		recharge.setStatus(status);
+		recharge.setType(order.getFlowType());
 		recharge.setFlowSize(order.getFlowSize());
 		//设置balance
 		Double balance = order.getFee();
 		User user = UserUtils.getUser();
-		if(recharge.getCreateBy()!=null){
+		if(recharge.getCreateBy()!=null&&recharge.getCreateBy().getId()!=null){
 			user = recharge.getCreateBy();
 		}
 		Double userRate = user.getFeeRate();
@@ -70,9 +71,26 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 			recharge.setBalance(balance);
 		}
 		dao.insert(recharge);
+		//更新用户余额
+		UserUtils.updateBalance(UserUtils.getUser(),recharge.getBalance(), status);
+		
 		return response;
 	}
+	
+	/**
+	 * 产生订单号
+	 * @return
+	 */
+	@Transactional(readOnly = false)
+	public String createOrder(){
+		return dao.createOrder();
+	}
 
+	/**
+	 * 更新账单状态
+	 * @param partnerOrderNo
+	 * @param status
+	 */
 	public void updateStatus(String partnerOrderNo, String status) {
 		Recharge entity = new Recharge();
 		entity.setPartnerOrderNo(partnerOrderNo);

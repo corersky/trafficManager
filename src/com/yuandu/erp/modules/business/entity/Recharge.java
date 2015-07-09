@@ -17,7 +17,7 @@ public class Recharge extends DataEntity<Recharge> {
 	private static final long serialVersionUID = 1L;
 
 	public static final String status_default = "0";//默认状态处理中
-	public static final String notify_url = "http://127.0.0.1:8080/TrafficManager/product/notifyStatus";
+	public static final String notify_url = "http://182.92.155.32:8080/TrafficManager/product/notifyStatus";
 	
 	private String mobile;//充值手机号
 	private Integer flowSize;
@@ -138,7 +138,7 @@ public class Recharge extends DataEntity<Recharge> {
 			setId(IdGen.uuid());
 		}
 		User user = UserUtils.getUser();
-		if(this.createBy!=null){
+		if(this.createBy!=null&&this.createBy.getId()!=null){
 			user = this.createBy;
 		}
 		if (StringUtils.isNotBlank(user.getId())){
