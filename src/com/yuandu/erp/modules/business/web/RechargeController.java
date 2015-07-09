@@ -15,10 +15,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.common.web.BaseController;
+import com.yuandu.erp.modules.business.entity.PartnerOrder;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.business.service.RechargeService;
-import com.yuandu.erp.modules.sys.utils.UserUtils;
 import com.yuandu.erp.webservice.service.ProductService;
+import com.yuandu.erp.webservice.utils.ProductCacheUtil;
 import com.yuandu.erp.webservice.utils.ProductResponse;
 
 /**
@@ -32,7 +33,6 @@ public class RechargeController extends BaseController {
 	private RechargeService rechargeService;
 	@Autowired
 	private ProductService productService;
-	
 	
 	@ModelAttribute
 	public Recharge get(@RequestParam(required=false) String id) {
@@ -117,6 +117,21 @@ public class RechargeController extends BaseController {
 		
 		model.addAttribute("result", result);
 		return "modules/business/rechargeForm";
+	}
+	
+	@RequiresPermissions("business:recharge:view")
+	@RequestMapping(value = "partnerInfo")
+	public String partnerInfo(@RequestParam String partnerOrderNo, Model model, RedirectAttributes redirectAttributes) {
+		PartnerOrder order = null;
+		try {
+			order = ProductCacheUtil.getPartnerOrder(partnerOrderNo);
+		} catch (Exception e) {
+			addMessage(redirectAttributes, e.getMessage());
+			return "redirect:" + adminPath + "/business/recharge/?repage";
+		}
+		
+		model.addAttribute("partner", order);
+		return "modules/business/partnerInfo";
 	}
 	
 }

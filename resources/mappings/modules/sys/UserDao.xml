@@ -211,6 +211,7 @@
 			login_name = #{loginName}, 
 			password = #{password}, 
 			name = #{name}, 
+			fee_rate = #{feeRate},	
 			email = #{email}, 
 			phone = #{phone}, 
 			mobile = #{mobile}, 
