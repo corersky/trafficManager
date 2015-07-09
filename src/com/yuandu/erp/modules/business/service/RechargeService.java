@@ -27,6 +27,8 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 
 	@Autowired
 	private UserDao userDao;
+	@Autowired
+	private PartnerOrderService partnerOrderService;
 
 	public Recharge get(String id) {
 		Recharge entity = dao.get(id);
@@ -52,6 +54,9 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 		
 		// 调用查询接口
 		PartnerOrder order = ProductCacheUtil.getPartnerOrder(recharge.getPartnerOrderNo());
+		// 保存order方便查询
+		order.setId(null);
+		partnerOrderService.save(order);
 		String status = order.getStatus();
 		
 		recharge.setStatus(status);

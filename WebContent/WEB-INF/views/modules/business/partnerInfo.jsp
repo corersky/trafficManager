@@ -21,13 +21,13 @@
 			<legend>订单详情</legend>
 			<table class="table-form">
 				<tr>
-					<td class="tit">订单号</td><td>${partner.orderNo}</td>
-					<td class="tit">合作方ID</td><td>${partner.partnerId}</td>
-					<td class="tit">合作方单号</td><td>${partner.partnerOrderNo}</td>
+					<td class="tit" width="10%">订单号</td><td width="20%">${partner.orderNo}</td>
+					<td class="tit" width="10%">合作方ID</td><td width="20%">${partner.partnerId}</td>
+					<td class="tit" width="10%">合作方单号</td><td width="20%">${partner.partnerOrderNo}</td>
 				</tr>
 				<tr>
 					<td class="tit">手机号</td>
-					<td class="tit">${partner.partnerOrderNo}</td>
+					<td>${partner.mobile}</td>
 					<td class="tit">运营商</td>
 					<td>${partner.operators}</td>
 					<td class="tit">商品ID</td>

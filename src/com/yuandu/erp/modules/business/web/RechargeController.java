@@ -84,9 +84,10 @@ public class RechargeController extends BaseController {
 			String partnerOrderNo = rechargeService.createOrder();
 			recharge.setPartnerOrderNo(partnerOrderNo);
 			rechargeService.saveRecharge(recharge);
-			addMessage(redirectAttributes, "保存通知'" + recharge.getMobile() + "'成功");
+			addMessage(redirectAttributes, "保存通知 手机：'" + recharge.getMobile() + "'购买成功");
 		} catch (Exception e) {
-			addMessage(redirectAttributes, "保存通知'" + e.getMessage());
+			e.printStackTrace();
+			addMessage(redirectAttributes, "保存通知 购买失败：'" + e.getMessage());
 		}
 		return "redirect:" + adminPath + "/business/recharge/?repage";
 	}

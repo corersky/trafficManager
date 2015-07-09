@@ -25,11 +25,16 @@
 		<sys:tableSort id="orderBy" name="orderBy" value="${page.orderBy}" callback="page();"/>
 		<ul class="ul-form">
 			<li><label>手机号：</label><form:input path="mobile" htmlEscape="false" maxlength="50" class="input-medium"/></li>
-			<li><label>业务类型：</label><form:input path="type" htmlEscape="false" maxlength="50" class="input-medium"/></li>
-			<li><label>充值状态：</label>
+			<li><label>业务类型：</label>
 				<form:select path="type" class="input-medium">
-					<form:option value="" label=""/>
-					<form:options items="${fns:getDictList('business_recharge_type')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+					<form:option value="">全部</form:option>
+					<form:options items="${fns:getDictList('recharge_tagnet')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+				</form:select>
+			</li>
+			<li><label>充值状态：</label>
+				<form:select path="status" class="input-medium">
+					<form:option value="">全部</form:option>
+					<form:options items="${fns:getDictList('recharge_status')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
 				</form:select>
 			</li>
 			<li class="clearfix"></li>
@@ -44,7 +49,7 @@
 			</li>
 			<c:if test="${fns:getUser().admin }">
 				<li><label>充值人员：</label>
-					<sys:treeselect id="oaNotifyRecord" name="oaNotifyRecordIds" value="${oaNotify.oaNotifyRecordIds}" labelName="oaNotifyRecordNames" labelValue="${oaNotify.oaNotifyRecordNames}"
+					<sys:treeselect id="createBy" name="createBy.id" value="${recharge.createBy.id}" labelName="createBy.name" labelValue="${recharge.createBy.name}"
 						title="用户" url="/sys/office/treeData?type=3" cssClass="input-small" notAllowSelectParent="true" />
 				</li>
 			</c:if>

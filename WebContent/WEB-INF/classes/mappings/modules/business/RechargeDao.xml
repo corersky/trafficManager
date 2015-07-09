@@ -52,6 +52,9 @@
 		<if test="beginDate != null and beginDate != '' and endDate != null and endDate != '' ">
 			AND a.create_date BETWEEN #{beginDate} AND #{endDate}
 		</if>
+		<if test="createBy != null and createBy.id != '' and createBy.id !=null ">
+			AND a.create_by = #{createBy.id}
+		</if>
 		<!-- 数据范围过滤 -->
 		${sqlMap.dsf}
 		

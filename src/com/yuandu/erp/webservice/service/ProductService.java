@@ -74,6 +74,7 @@ public class ProductService {
 	 * 缓存时间:1天
 	 * 接口鉴权:是
 	 * 返回值(Json)*/
+	@Transactional(readOnly = false)
 	public DefaultResponse buyFlow(String channel,String product,String mobile){
 		DefaultResponse response = new DefaultResponse();
 		try {
@@ -95,12 +96,19 @@ public class ProductService {
 			return rechargeService.saveRecharge(recharge);
 		} catch (Exception e) {
 			response.setCode("0001");
-			response.setMsg("系统错误："+e.getMessage());
+			response.setMsg("手机：["+mobile+"] 购买失败！");
 		}
 		
 		return response;
 	}
 
+	/**
+	 * 说明:合作方状态改变通知接口
+	 * orderNo
+	 * partnerOrderNo
+	 * status
+	 */
+	@Transactional(readOnly = false)
 	public void notifyStatus(String partnerOrderNo, String status) throws Exception {
 		
 		UserUtils.updateBalance(partnerOrderNo,status);//需要先更新余额  后更新状态
@@ -109,7 +117,6 @@ public class ProductService {
 		//更新运营商订单
 		partnerOrderService.updateStatus(partnerOrderNo,status);
 		ProductCacheUtil.clearCache(partnerOrderNo);
-
 	}
 	
 }
