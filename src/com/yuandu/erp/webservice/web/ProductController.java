@@ -3,6 +3,7 @@ package com.yuandu.erp.webservice.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -51,7 +52,7 @@ public class ProductController {
 	 * partnerOrderNo
 	 * status
 	 */
-	@RequestMapping(value = "notifyStatus")
+	@RequestMapping(value = "notifyStatus",method=RequestMethod.POST)
 	public @ResponseBody DefaultResponse notifyStatus(@RequestParam String channel,@RequestParam String orderNo
 			,@RequestParam String partnerOrderNo,@RequestParam String status) {
 		DefaultResponse response = new DefaultResponse();
