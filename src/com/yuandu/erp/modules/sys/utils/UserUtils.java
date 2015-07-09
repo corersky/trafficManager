@@ -11,7 +11,7 @@ import org.apache.shiro.subject.Subject;
 import com.yuandu.erp.common.service.BaseService;
 import com.yuandu.erp.common.utils.CacheUtils;
 import com.yuandu.erp.common.utils.SpringContextHolder;
-import com.yuandu.erp.modules.business.entity.PartnerOrder;
+import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.sys.dao.AreaDao;
 import com.yuandu.erp.modules.sys.dao.MenuDao;
 import com.yuandu.erp.modules.sys.dao.OfficeDao;
@@ -110,16 +110,16 @@ public class UserUtils {
 	 */
 	public static void updateBalance(User user,String orderNo,String partnerOrderNo, String status) throws Exception{
 		//判断工单是否已经扣费
-		PartnerOrder order = ProductCacheUtil.getPartnerOrder(user,partnerOrderNo);
+		Recharge recharge = ProductCacheUtil.getRecharge(partnerOrderNo);
 		
-		if(order!=null && orderNo.equals(order.getOrderNo())){//符合扣费
-			if(!"1".equals(order.getStatus())&&"1".equals(status)){
+		if(recharge!=null && orderNo.equals(recharge.getOrderNo())){//符合扣费
+			if(!"1".equals(recharge.getStatus())&&"1".equals(status)){
 				//更新余额
-				double balance = -order.getBalance();
+				double balance = -recharge.getBalance();
 				user.setBalance(balance);
 				
 				userDao.updateBlance(user);
-				UserUtils.clearCache(user);//清楚缓存
+				UserUtils.clearCache(user);//清除缓存
 			}
 		}else{
 			throw new RuntimeException("订单：["+partnerOrderNo+"] 不存在");

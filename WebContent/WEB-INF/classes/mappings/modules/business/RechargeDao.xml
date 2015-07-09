@@ -35,6 +35,14 @@
 		WHERE a.id = #{id}
 	</select>
 	
+	<select id="getByPartnerOrder" resultType="Recharge">
+		SELECT 
+			<include refid="rechargeColumns"/>
+		FROM business_recharge a
+		<include refid="rechargeJoins"/>
+		WHERE a.partner_orderno = #{partnerOrderNo}
+	</select>
+	
 	<select id="findList" resultType="Recharge">
 		SELECT 
 			<include refid="rechargeColumns"/>

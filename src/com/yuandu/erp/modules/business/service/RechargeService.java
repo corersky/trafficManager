@@ -107,4 +107,13 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 		
 		dao.updateStatus(entity);
 	}
+
+	/**
+	 * 根据订单号查询
+	 * @param partnerOrderNo
+	 * @return
+	 */
+	public Recharge getByPartnerOrder(String partnerOrderNo) {
+		return dao.getByPartnerOrder(partnerOrderNo);
+	}
 }

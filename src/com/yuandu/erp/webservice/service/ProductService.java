@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.business.entity.PartnerOrder;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.business.service.PartnerOrderService;
@@ -101,8 +102,18 @@ public class ProductService {
 	 * status
 	 */
 	@Transactional(readOnly = false)
-	public void notifyStatus(User user,String orderNo,String partnerOrderNo, String status) throws Exception {
+	public void notifyStatus(String orderNo,String partnerOrderNo, String status) throws Exception {
 		
+		String userId = null;//用户id
+		Recharge recharge = ProductCacheUtil.getRecharge(partnerOrderNo);
+		if(recharge!=null){
+			userId = recharge.getCreateBy().getId();
+		}
+		if(StringUtils.isEmpty(userId)){//订单不存在
+			throw new RuntimeException("订单["+partnerOrderNo+"] 不存在");
+		}
+		
+		User user = UserUtils.get(userId);
 		UserUtils.updateBalance(user,orderNo,partnerOrderNo,status);//需要先更新余额  后更新状态
 		//更新充值记录
 		rechargeService.updateStatus(user,partnerOrderNo,status);

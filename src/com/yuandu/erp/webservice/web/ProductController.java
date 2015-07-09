@@ -53,14 +53,12 @@ public class ProductController {
 	 * status
 	 */
 	@RequestMapping(value = "notifyStatus",method=RequestMethod.POST)
-	public @ResponseBody DefaultResponse notifyStatus(@RequestParam String channel,@RequestParam String orderNo
-			,@RequestParam String partnerOrderNo,@RequestParam String status) {
+	public @ResponseBody DefaultResponse notifyStatus(@RequestParam String orderNo,@RequestParam String partnerOrderNo,@RequestParam String status) {
 		DefaultResponse response = new DefaultResponse();
 		try {
-			User user = validateUser(channel);
 			response.setCode("0000");
 			response.setMsg("订单：["+partnerOrderNo+"]  状态更新成功");
-			productService.notifyStatus(user,orderNo,partnerOrderNo,status);
+			productService.notifyStatus(orderNo,partnerOrderNo,status);
 		} catch (Exception e) {
 			response.setCode("0001");
 			response.setMsg("订单：["+partnerOrderNo+"]  状态更新失败 "+e.getMessage());

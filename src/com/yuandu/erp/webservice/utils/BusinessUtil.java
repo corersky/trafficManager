@@ -8,11 +8,8 @@ import com.yuandu.erp.common.mapper.JsonMapper;
 import com.yuandu.erp.common.security.Digests;
 import com.yuandu.erp.common.utils.DateUtils;
 import com.yuandu.erp.common.utils.HttpClientUtil;
-import com.yuandu.erp.common.utils.SpringContextHolder;
 import com.yuandu.erp.common.utils.StringUtils;
-import com.yuandu.erp.modules.business.entity.PartnerOrder;
 import com.yuandu.erp.modules.business.entity.Recharge;
-import com.yuandu.erp.modules.business.service.PartnerOrderService;
 import com.yuandu.erp.modules.sys.entity.User;
 import com.yuandu.erp.modules.sys.utils.DictUtils;
 import com.yuandu.erp.webservice.bean.ProductPojo;
@@ -21,8 +18,6 @@ public class BusinessUtil {
 	
 	private static final String split = "/";
 	private static final String format = "yyyyMMddHHmmss";
-	
-	private static PartnerOrderService partnerOrderService = SpringContextHolder.getBean(PartnerOrderService.class);
 	
 	/**
 	 * 获取共key
@@ -102,15 +97,7 @@ public class BusinessUtil {
 	 * 接口鉴权:是
 	 */
 	public static final PartnerOrderResponse queryOrderByPartnerOrderNo(User user,String partnerOrderNo) throws Exception{
-		//首先查询数据库  如果数据库 不存在 则httpclient
-		PartnerOrder order = partnerOrderService.getByPartnerOrder(partnerOrderNo);
-		if(order !=null){
-			PartnerOrderResponse response = new PartnerOrderResponse();
-			response.setCode("0000");
-			response.setData(order);
-			
-			return response;
-		}
+		
 		String authAppkey = Global.getConfig("flow.authAppkey");
 		String appSecrect = Global.getConfig("flow.appSecrect");
 		String authTimespan = DateUtils.formatDate(new Date(), format);
