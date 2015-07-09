@@ -13,6 +13,9 @@ import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.business.entity.PartnerOrder;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.business.service.PartnerOrderService;
+import com.yuandu.erp.modules.sys.entity.User;
+import com.yuandu.erp.modules.sys.utils.DictUtils;
+import com.yuandu.erp.webservice.bean.ProductPojo;
 
 public class BusinessUtil {
 	
@@ -98,7 +101,7 @@ public class BusinessUtil {
 	 * 缓存时间:0
 	 * 接口鉴权:是
 	 */
-	public static final PartnerOrderResponse queryOrderByPartnerOrderNo(String partnerOrderNo) throws Exception{
+	public static final PartnerOrderResponse queryOrderByPartnerOrderNo(User user,String partnerOrderNo) throws Exception{
 		//首先查询数据库  如果数据库 不存在 则httpclient
 		PartnerOrder order = partnerOrderService.getByPartnerOrder(partnerOrderNo);
 		if(order !=null){
@@ -135,6 +138,15 @@ public class BusinessUtil {
 		
 		PartnerOrderResponse response = (PartnerOrderResponse) JsonMapper.fromJsonString(result, PartnerOrderResponse.class);
 		response.isCorrect();
+		//设置该用户的扣款
+		Double userRate = user.getFeeRate();
+		Double balance = response.getData().getFee();
+		if(balance!=null&&userRate!=null){
+			String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
+			double rate = StringUtils.toDouble(adminRate);
+			balance = balance/rate * userRate;
+			response.getData().setBalance(balance);
+		}
 		return response;
 	}
 	
@@ -147,7 +159,7 @@ public class BusinessUtil {
 	 * 缓存时间:0
 	 * 接口鉴权:是
 	 */
-	public static final ProductResponse productList() throws Exception{
+	public static final ProductResponse productList(User user) throws Exception{
 		String authAppkey = Global.getConfig("flow.authAppkey");
 		String appSecrect = Global.getConfig("flow.appSecrect");
 		String authTimespan = DateUtils.formatDate(new Date(), format);
@@ -172,6 +184,9 @@ public class BusinessUtil {
 		String result = HttpClientUtil.doGetURL(url.toString());
 		ProductResponse response = (ProductResponse) JsonMapper.fromJsonString(result, ProductResponse.class);
 		response.isCorrect();
+		//设置该用户的扣款
+		validateRate(user, response);
+		
 		return response;
 	}
 	
@@ -184,7 +199,7 @@ public class BusinessUtil {
  	 * 缓存时间:0
 	 * 接口鉴权:是
 	 */
-	public static final ProductResponse productListByMobile(String mobile) throws Exception{
+	public static final ProductResponse productListByMobile(User user,String mobile) throws Exception{
 		String authAppkey = Global.getConfig("flow.authAppkey");
 		String appSecrect = Global.getConfig("flow.appSecrect");
 		String authTimespan = DateUtils.formatDate(new Date(), format);
@@ -212,7 +227,23 @@ public class BusinessUtil {
 		String result = HttpClientUtil.doGetURL(url.toString());
 		ProductResponse response = (ProductResponse) JsonMapper.fromJsonString(result, ProductResponse.class);
 		response.isCorrect();
+		//设置该用户的扣款
+		validateRate(user, response);
+		
 		return response;
 	}
 	
+	private static final void validateRate(User user,ProductResponse response){
+		//设置该用户的扣款
+		Double userRate = user.getFeeRate();
+		String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
+		for(ProductPojo pojo:response.getData()){
+			Double balance = pojo.getFee();
+			if(balance!=null&&userRate!=null){
+				double rate = StringUtils.toDouble(adminRate);
+				balance = balance/rate * userRate;
+				pojo.setBalance(balance);
+			}
+		}
+	}
 }

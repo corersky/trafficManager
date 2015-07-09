@@ -6,13 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.yuandu.erp.common.persistence.Page;
 import com.yuandu.erp.common.service.CrudService;
-import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.business.dao.RechargeDao;
 import com.yuandu.erp.modules.business.entity.PartnerOrder;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.sys.dao.UserDao;
 import com.yuandu.erp.modules.sys.entity.User;
-import com.yuandu.erp.modules.sys.utils.DictUtils;
 import com.yuandu.erp.modules.sys.utils.UserUtils;
 import com.yuandu.erp.webservice.utils.BusinessUtil;
 import com.yuandu.erp.webservice.utils.DefaultResponse;
@@ -52,8 +50,12 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 		recharge.setOrderNo(orderNo);
 		recharge.setNotifyUrl(Recharge.notify_url);
 		
+		User user = UserUtils.getUser();
+		if(recharge.getCreateBy()!=null&&recharge.getCreateBy().getId()!=null){
+			user = recharge.getCreateBy();
+		}
 		// 调用查询接口
-		PartnerOrder order = ProductCacheUtil.getPartnerOrder(recharge.getPartnerOrderNo());
+		PartnerOrder order = ProductCacheUtil.getPartnerOrder(user,recharge.getPartnerOrderNo());
 		// 保存order方便查询
 		order.setId(null);
 		partnerOrderService.save(order);
@@ -63,18 +65,9 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 		recharge.setType(order.getFlowType());
 		recharge.setFlowSize(order.getFlowSize());
 		//设置balance
-		Double balance = order.getFee();
-		User user = UserUtils.getUser();
-		if(recharge.getCreateBy()!=null&&recharge.getCreateBy().getId()!=null){
-			user = recharge.getCreateBy();
-		}
-		Double userRate = user.getFeeRate();
-		if(balance!=null&&userRate!=null){
-			String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
-			double rate = StringUtils.toDouble(adminRate);
-			balance = balance/rate * userRate;
-			recharge.setBalance(balance);
-		}
+		Double balance = order.getBalance();
+		
+		recharge.setBalance(balance);
 		dao.insert(recharge);
 		//更新用户余额
 		UserUtils.updateBalance(UserUtils.getUser(),recharge.getBalance(), status);
@@ -95,13 +88,23 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 	 * 更新账单状态
 	 * @param partnerOrderNo
 	 * @param status
+	 * @throws Exception 
 	 */
-	public void updateStatus(String partnerOrderNo, String status) {
+	@Transactional(readOnly = false)
+	public void updateStatus(User user,String partnerOrderNo, String status) throws Exception {
+		
+		//判断状态是否为1
+		PartnerOrder order = ProductCacheUtil.getPartnerOrder(user, partnerOrderNo);
+		if(order!=null&&"1".equals(order.getStatus())){//已经扣款
+			throw new RuntimeException("订单["+partnerOrderNo+"] 已经扣费，无法更新状态");
+		}
+		
 		Recharge entity = new Recharge();
 		entity.setPartnerOrderNo(partnerOrderNo);
 		entity.setStatus(status);
-		
+		entity.setUpdateBy(user);
 		entity.preUpdate();
+		
 		dao.updateStatus(entity);
 	}
 }

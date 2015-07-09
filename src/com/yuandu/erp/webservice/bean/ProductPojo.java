@@ -7,25 +7,26 @@ public class ProductPojo implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	long id	;		//	商品ID	
-	String name;	//		商品名称	
-	String displayName;	//		商品详细名称	
-	String operators;	//		运营商	0：电信 1：移动 2：联通
-	String cityType;	//		城市类型	0：全国 1：省 2：市
-	String cityId;		//		省市ID	
-	String cityName;	//		省市名称	
-	String fee;			//		单价	
-	String img;			//		图片地址	
-	String flowSize;	//		流量大小	单位MB
-	String describe;	//		描述	
-	String status;		//		状态	1：可用
-	String comment;		//		备注	
-	String specialNote;	//		特别说明	
-	String orderAgreement;//		订购协议	
-	String payments;	//		支付方式	
-	String tagNet;		//		支持的网络类型	NET2G：2g网络 NET3G：3g网络 NET4G：4g网络 ALL：所有网络
-	String flowType;	//		流量类型	PREVIOUS：前向 BACK：后向
-	String RegionType;	//			["全国"] 、["省内"]
-	String salesCount;	//		可用库存	
+	private String name;		//		商品名称	
+	private String displayName;	//		商品详细名称	
+	private String operators;	//		运营商	0：电信 1：移动 2：联通
+	private String cityType;	//		城市类型	0：全国 1：省 2：市
+	private String cityId;		//		省市ID	
+	private String cityName;	//		省市名称	
+	private Double fee;			//		单价	
+	private String img;			//		图片地址	
+	private Integer flowSize;	//		流量大小	单位MB
+	private String describe;	//		描述	
+	private String status;		//		状态	1：可用
+	private String comment;		//		备注	
+	private String specialNote;	//		特别说明	
+	private String orderAgreement;//		订购协议	
+	private String payments;	//		支付方式	
+	private String tagNet;		//		支持的网络类型	NET2G：2g网络 NET3G：3g网络 NET4G：4g网络 ALL：所有网络
+	private String flowType;	//		流量类型	PREVIOUS：前向 BACK：后向
+	private String RegionType;	//			["全国"] 、["省内"]
+	private Integer salesCount;	//		可用库存	
+	private Double balance;		//		账户扣款
 	
 	public long getId() {
 		return id;
@@ -69,10 +70,10 @@ public class ProductPojo implements Serializable{
 	public void setCityName(String cityName) {
 		this.cityName = cityName;
 	}
-	public String getFee() {
+	public Double getFee() {
 		return fee;
 	}
-	public void setFee(String fee) {
+	public void setFee(Double fee) {
 		this.fee = fee;
 	}
 	public String getImg() {
@@ -81,10 +82,10 @@ public class ProductPojo implements Serializable{
 	public void setImg(String img) {
 		this.img = img;
 	}
-	public String getFlowSize() {
+	public Integer getFlowSize() {
 		return flowSize;
 	}
-	public void setFlowSize(String flowSize) {
+	public void setFlowSize(Integer flowSize) {
 		this.flowSize = flowSize;
 	}
 	public String getDescribe() {
@@ -141,11 +142,17 @@ public class ProductPojo implements Serializable{
 	public void setRegionType(String regionType) {
 		RegionType = regionType;
 	}
-	public String getSalesCount() {
+	public Integer getSalesCount() {
 		return salesCount;
 	}
-	public void setSalesCount(String salesCount) {
+	public void setSalesCount(Integer salesCount) {
 		this.salesCount = salesCount;
+	}
+	public Double getBalance() {
+		return balance;
+	}
+	public void setBalance(Double balance) {
+		this.balance = balance;
 	}
 
 }

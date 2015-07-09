@@ -19,6 +19,7 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	private String productName;		//		商品名称	
 	private Integer flowSize;		//		流量大小	单位（MB）
 	private Double fee;				//		单价	
+	private Double balance;			//		账户扣费
 	private String flowType;		//		流量类型	
 	private Integer count;			//		购买的商品数量	
 	private Double totalFee	;		//	    合计金额	
@@ -99,6 +100,12 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	}
 	public String getStatus() {
 		return status;
+	}
+	public Double getBalance() {
+		return balance;
+	}
+	public void setBalance(Double balance) {
+		this.balance = balance;
 	}
 	public void setStatus(String status) {
 		this.status = status;

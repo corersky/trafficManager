@@ -6,6 +6,7 @@
 		a.id AS "id",
 		a.mobile,
 		a.flow_size AS "flowSize",
+		a.balance,
 		a.type,
 		a.product_id AS "productId",
 		a.partner_orderno AS "partnerOrderNo",
@@ -76,6 +77,7 @@
 			TYPE,
 			MOBILE,
 			FLOW_SIZE,
+			BALANCE,
 			PRODUCT_ID,
 			PARTNER_ORDERNO,
 			ORDER_NO,
@@ -92,6 +94,7 @@
 			#{type},
 			#{mobile},
 			#{flowSize},
+			#{balance},
 			#{productId},
 			#{partnerOrderNo},
 			#{orderNo},
@@ -120,6 +123,7 @@
 	<update id="updateStatus">
 		UPDATE business_recharge SET 	
 			STATUS = #{status},
+			UPDATE_BY = #{updateBy.id},
 			UPDATE_DATE = #{updateDate}
 		WHERE PARTNER_ORDERNO = #{partnerOrderNo}
 	</update>

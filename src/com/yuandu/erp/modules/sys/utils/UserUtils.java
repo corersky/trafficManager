@@ -104,22 +104,25 @@ public class UserUtils {
 	}
 	
 	/**
-	 * 更新余额
+	 * 更新余额(web 用户调用)
 	 * @return
 	 * @throws Exception 
 	 */
-	public static void updateBalance(String partnerOrderNo, String status) throws Exception{
+	public static void updateBalance(User user,String orderNo,String partnerOrderNo, String status) throws Exception{
 		//判断工单是否已经扣费
-		PartnerOrder order = ProductCacheUtil.getPartnerOrder(partnerOrderNo);
+		PartnerOrder order = ProductCacheUtil.getPartnerOrder(user,partnerOrderNo);
 		
-		if(order!=null&&!"1".equals(order.getStatus())&&"1".equals(status)){//符合扣费
-			User user = UserUtils.get(order.getCreateBy().getId());
-			//更新余额
-			double balance = -order.getFee();
-			user.setBalance(balance);
-			
-			userDao.updateBlance(user);
-			UserUtils.clearCache(user);//清楚缓存
+		if(order!=null && orderNo.equals(order.getOrderNo())){//符合扣费
+			if(!"1".equals(order.getStatus())&&"1".equals(status)){
+				//更新余额
+				double balance = -order.getBalance();
+				user.setBalance(balance);
+				
+				userDao.updateBlance(user);
+				UserUtils.clearCache(user);//清楚缓存
+			}
+		}else{
+			throw new RuntimeException("订单：["+partnerOrderNo+"] 不存在");
 		}
 	}
 	

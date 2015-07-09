@@ -3,6 +3,7 @@ package com.yuandu.erp.webservice.utils;
 import com.yuandu.erp.common.utils.CacheUtils;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.business.entity.PartnerOrder;
+import com.yuandu.erp.modules.sys.entity.User;
 
 public class ProductCacheUtil {
 	
@@ -40,13 +41,12 @@ public class ProductCacheUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public static PartnerOrder getPartnerOrder(String partnerOrder) throws Exception{
+	public static PartnerOrder getPartnerOrder(User user,String partnerOrder) throws Exception{
 		PartnerOrder order = (PartnerOrder) CacheUtils.get(RECHARGE_PARTNER_ORDER, partnerOrder);
 		//添加缓存
 		if (order==null){
-			PartnerOrderResponse response = BusinessUtil.queryOrderByPartnerOrderNo(partnerOrder);
+			PartnerOrderResponse response = BusinessUtil.queryOrderByPartnerOrderNo(user,partnerOrder);
 			order = response.getData();
-
 			CacheUtils.put(RECHARGE_PARTNER_ORDER, partnerOrder, order);
 		}
 		return order;

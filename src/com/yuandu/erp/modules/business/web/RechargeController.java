@@ -18,6 +18,8 @@ import com.yuandu.erp.common.web.BaseController;
 import com.yuandu.erp.modules.business.entity.PartnerOrder;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.business.service.RechargeService;
+import com.yuandu.erp.modules.sys.entity.User;
+import com.yuandu.erp.modules.sys.utils.UserUtils;
 import com.yuandu.erp.webservice.service.ProductService;
 import com.yuandu.erp.webservice.utils.ProductCacheUtil;
 import com.yuandu.erp.webservice.utils.ProductResponse;
@@ -109,7 +111,8 @@ public class RechargeController extends BaseController {
 			if(!StringUtils.isMobileNO(recharge.getMobile())){
 				model.addAttribute("message", "请填写正确的手机号！");
 			}else{
-				result = productService.productListByMobile(recharge.getMobile());
+				User user = UserUtils.getUser();
+				result = productService.productListByMobile(user,recharge.getMobile());
 			}
 		} catch (Exception e) {
 			addMessage(redirectAttributes, e.getMessage());
@@ -124,7 +127,8 @@ public class RechargeController extends BaseController {
 	public String partnerInfo(@RequestParam String partnerOrderNo, Model model, RedirectAttributes redirectAttributes) {
 		PartnerOrder order = null;
 		try {
-			order = ProductCacheUtil.getPartnerOrder(partnerOrderNo);
+			User user = UserUtils.getUser();
+			order = ProductCacheUtil.getPartnerOrder(user,partnerOrderNo);
 		} catch (Exception e) {
 			addMessage(redirectAttributes, e.getMessage());
 			return "redirect:" + adminPath + "/business/recharge/?repage";

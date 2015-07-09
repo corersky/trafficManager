@@ -35,9 +35,8 @@ public class ProductService {
 	 * 缓存时间:0
 	 * 接口鉴权:是
 	 * 参数(GET)*/
-	public ProductResponse productListByMobile(String mobile) throws Exception {
-		
-		return BusinessUtil.productListByMobile(mobile);
+	public ProductResponse productListByMobile(User user,String mobile) throws Exception {
+		return BusinessUtil.productListByMobile(user,mobile);
 	}
 
 	/*	
@@ -62,8 +61,8 @@ public class ProductService {
 	 * 缓存时间:0天
 	 * 接口鉴权:是
 	 */
-	public PartnerOrder queryOrderByPartnerOrderNo(String partnerOrderNo)throws Exception{
-		return ProductCacheUtil.getPartnerOrder(partnerOrderNo);
+	public PartnerOrder queryOrderByPartnerOrderNo(User user,String partnerOrderNo)throws Exception{
+		return ProductCacheUtil.getPartnerOrder(user,partnerOrderNo);
 	}
 	
 	/*	
@@ -75,16 +74,9 @@ public class ProductService {
 	 * 接口鉴权:是
 	 * 返回值(Json)*/
 	@Transactional(readOnly = false)
-	public DefaultResponse buyFlow(String channel,String product,String mobile){
+	public DefaultResponse buyFlow(User user,String product,String mobile){
 		DefaultResponse response = new DefaultResponse();
 		try {
-			//判断用户合法
-			User user = UserUtils.getByNo(channel);
-			if(user==null){
-				response.setCode("0001");
-				response.setMsg("非法用户："+channel);
-				return response;
-			}
 			Recharge recharge = new Recharge();
 			recharge.setMobile(mobile);
 			recharge.setProductId(product);
@@ -109,13 +101,13 @@ public class ProductService {
 	 * status
 	 */
 	@Transactional(readOnly = false)
-	public void notifyStatus(String partnerOrderNo, String status) throws Exception {
+	public void notifyStatus(User user,String orderNo,String partnerOrderNo, String status) throws Exception {
 		
-		UserUtils.updateBalance(partnerOrderNo,status);//需要先更新余额  后更新状态
+		UserUtils.updateBalance(user,orderNo,partnerOrderNo,status);//需要先更新余额  后更新状态
 		//更新充值记录
-		rechargeService.updateStatus(partnerOrderNo,status);
+		rechargeService.updateStatus(user,partnerOrderNo,status);
 		//更新运营商订单
-		partnerOrderService.updateStatus(partnerOrderNo,status);
+		partnerOrderService.updateStatus(user,partnerOrderNo,status);
 		ProductCacheUtil.clearCache(partnerOrderNo);
 	}
 	

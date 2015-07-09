@@ -6,6 +6,7 @@
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
 		$(document).ready(function() {
+			
 			$("#inputForm").validate({
 				submitHandler: function(form){
 					loading('正在提交，请稍等...');
@@ -45,7 +46,6 @@
 	    }
 		
 		function buyFlow(productId){
-
 			$('#mobile').val($('#mobileSearch').val());
 			$('#productId').val(productId);
 			
@@ -91,7 +91,7 @@
 				<td>${fns:getDictLabel(product.operators, 'recharge_operators', '')}</td>
 				<td>${fns:getDictLabel(product.cityType, 'recharge_citytype', '')}</td>
 				<td>${product.cityName}</td>
-				<td>${product.fee}</td>
+				<td>${product.balance}</td>
 				<td>${product.flowSize }MB</td>
 				<td>${fns:getDictLabel(product.status, 'recharge_status', '不可用')}</td>
 				<td>${fns:getDictLabel(product.tagNet, 'recharge_tagnet', '')}</td>
@@ -111,8 +111,8 @@
 	</div>
 	
 	<form:form id="saveForm" modelAttribute="recharge" action="${ctx}/business/recharge/save" method="post">
-		<input type="hidden" name="mobile" id="mobile" value="" />
-		<input type="hidden" name="productId" id="productId" value="" />
+		<input type="text" name="mobile" id="mobile" value="" />
+		<input type="text" name="productId" id="productId" value="" />
 	</form:form>
 </body>
 </html>
