@@ -97,7 +97,6 @@
 				<td>${fns:getDictLabel(product.tagNet, 'recharge_tagnet', '')}</td>
 				<td>${product.salesCount }</td>
 				<shiro:hasPermission name="business:recharge:edit"><td>
-    				<a href="${product.id}">查看</a>
     				<c:if test="${product.status eq '1' and  product.salesCount>0}">
 						<a href="javascript:void(0)" onclick="buyFlow(${product.id});">购买</a>
     				</c:if>

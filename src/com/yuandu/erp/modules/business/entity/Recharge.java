@@ -17,7 +17,7 @@ public class Recharge extends DataEntity<Recharge> {
 	private static final long serialVersionUID = 1L;
 
 	public static final String status_default = "0";//默认状态处理中
-	public static final String notify_url = "http://182.92.155.32:8080/TrafficManager/manager/product/notifyStatus";
+	public static final String notify_url = "http://partner.doniv.net:8001/TrafficManager/manager/product/notifyStatus";
 	
 	private String mobile;//充值手机号
 	private Integer flowSize;

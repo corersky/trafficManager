@@ -53,7 +53,7 @@ public class BusinessUtil {
 		
 		String productId = recharge.getProductId();	//产品ID
 		String partnerOrderNo = recharge.getPartnerOrderNo();	//合作方订单id
-		String notifyUrl = StringUtils.null2Empty(recharge.getNotifyUrl());				//回调地址
+		String notifyUrl = StringUtils.null2Empty(Recharge.notify_url);				//回调地址
 
 		String authAppkey = Global.getConfig("flow.authAppkey");
 		String appSecrect = Global.getConfig("flow.appSecrect");
