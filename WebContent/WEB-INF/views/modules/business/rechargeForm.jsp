@@ -45,9 +45,10 @@
 	    	return false;
 	    }
 		
-		function buyFlow(productId){
+		function buyFlow(productId,balance){
 			$('#mobile').val($('#mobileSearch').val());
 			$('#productId').val(productId);
+			$('#balance').val(balance);
 			
 			$("#saveForm").submit();
 			return false;
@@ -98,7 +99,7 @@
 				<td>${product.salesCount }</td>
 				<shiro:hasPermission name="business:recharge:edit"><td>
     				<c:if test="${product.status eq '1' and  product.salesCount>0}">
-						<a href="javascript:void(0)" onclick="buyFlow(${product.id});">购买</a>
+						<a href="javascript:void(0)" onclick="buyFlow(${product.id},${product.balance });">购买</a>
     				</c:if>
 				</td></shiro:hasPermission>
 			</tr>
