@@ -114,9 +114,9 @@ public class ProductService {
 		}
 		
 		User user = UserUtils.get(userId);
-		UserUtils.updateBalance(user,orderNo,partnerOrderNo,status);//需要先更新余额  后更新状态
+		String isRefund = UserUtils.updateBalance(user,orderNo,partnerOrderNo,status);//需要先更新余额  后更新状态
 		//更新充值记录
-		rechargeService.updateStatus(user,partnerOrderNo,status);
+		rechargeService.updateStatus(user,partnerOrderNo,status,isRefund);
 		//更新运营商订单
 		partnerOrderService.updateStatus(user,partnerOrderNo,status);
 		ProductCacheUtil.clearCache(partnerOrderNo);

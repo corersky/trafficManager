@@ -82,6 +82,12 @@ public class RechargeController extends BaseController {
 				addMessage(redirectAttributes, "购买产品不能为空，不能操作！");
 				return "redirect:" + adminPath + "/business/recharge/form?id="+recharge.getId();
 			}
+			// 判断用户余额
+			Double balance = recharge.getBalance();
+			if(!UserUtils.isEnoughBalance(UserUtils.getUser(),balance)){
+				addMessage(redirectAttributes, "用户余额不足，请及时充值！");
+				return "redirect:" + adminPath + "/business/recharge/form?id="+recharge.getId();
+			}
 			//生成订单编号
 			String partnerOrderNo = rechargeService.createOrder();
 			recharge.setPartnerOrderNo(partnerOrderNo);

@@ -42,13 +42,14 @@
 	</form:form>
 	<sys:message content="${message}"/>
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
-		<thead><tr><th width="55px">序号</th><th>充值金额</th><th class="sort-column login_name">操作员</th><th class="sort-column name">充值时间</th><shiro:hasPermission name="sys:user:edit"><th>操作</th></shiro:hasPermission></tr></thead>
+		<thead><tr><th width="55px">序号</th><th>充值金额</th><th class="sort-column login_name">操作员</th><th>备注</th><th class="sort-column name">充值时间</th><shiro:hasPermission name="sys:user:edit"><th>操作</th></shiro:hasPermission></tr></thead>
 		<tbody>
 		<c:forEach items="${page.list}" var="recharge" varStatus="status">
 			<tr>
 				<td>${status.index }</td>
 				<td>${recharge.balance}</td>
 				<td>${recharge.createBy.name}</td>
+				<td>${recharge.remarks}</td>
 				<td><fmt:formatDate value="${recharge.createDate}" type="both"/></td>
 				<td>
 					详情

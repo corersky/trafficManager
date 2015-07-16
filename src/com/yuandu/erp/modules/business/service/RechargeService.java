@@ -69,8 +69,8 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 		
 		recharge.setBalance(balance);
 		dao.insert(recharge);
-		//更新用户余额
-		UserUtils.updateBalance(UserUtils.getUser(),recharge.getBalance(), status);
+		//更新用户余额（直接扣款  后期退款）
+		UserUtils.updateBalance(UserUtils.getUser(),recharge.getBalance(),order.getPartnerOrderNo());
 		
 		return response;
 	}
@@ -91,18 +91,13 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 	 * @throws Exception 
 	 */
 	@Transactional(readOnly = false)
-	public void updateStatus(User user,String partnerOrderNo, String status) throws Exception {
-		
-		//判断状态是否为1
-		PartnerOrder order = ProductCacheUtil.getPartnerOrder(user, partnerOrderNo);
-		if(order!=null&&"1".equals(order.getStatus())){//已经扣款
-			throw new RuntimeException("订单["+partnerOrderNo+"] 已经扣费，无法更新状态");
-		}
+	public void updateStatus(User user,String partnerOrderNo, String status,String isRefund) throws Exception {
 		
 		Recharge entity = new Recharge();
 		entity.setPartnerOrderNo(partnerOrderNo);
 		entity.setStatus(status);
 		entity.setUpdateBy(user);
+		entity.setIsRefund(isRefund);
 		entity.preUpdate();
 		
 		dao.updateStatus(entity);

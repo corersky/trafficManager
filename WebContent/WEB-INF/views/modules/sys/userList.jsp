@@ -30,7 +30,12 @@
 				if(v){
 					//提交表单
 					$("#rechargeForm").ajaxSubmit(function (responseResult) {
-						$("#searchForm").submit();
+						if(responseResult.success){
+							$("#searchForm").submit();
+							showTip("充值成功！","success");
+						}else{
+							showTip("充值失败！","error");
+						}
 					});
 				}
 			}});

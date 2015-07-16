@@ -229,13 +229,19 @@ public class UserController extends BaseController {
 	
 	@RequiresPermissions("sys:user:edit")
 	@RequestMapping(value = "recharge")
-	public @ResponseBody User recharge(@RequestParam(required=true) String supplierId,@RequestParam(required=true) Double balance){
-		User user = new User();
-		user.setId(supplierId);
-		user.setBalance(balance);
-		
-		systemService.updateBlance(user);
-		return user;
+	public @ResponseBody Map<String,String> recharge(@RequestParam(required=true) String supplierId,@RequestParam(required=true) Double balance){
+		Map<String,String> result = Maps.newHashMap();
+		result.put("success", "true");
+		try {
+			User user = UserUtils.get(supplierId);
+			user.setBalance(balance);
+			
+			systemService.updateBlance(user);
+		} catch (Exception e) {
+			result.put("success", "false");
+			result.put("msg", e.getMessage());
+		}
+		return result;
 	}
 	
 }

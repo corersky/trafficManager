@@ -22,12 +22,13 @@ public class Recharge extends DataEntity<Recharge> {
 	private String mobile;//充值手机号
 	private Integer flowSize;
 	private Double balance;//价格
-	private String status;
+	private String status; //订单状态	0：初始状态 1：成功 2：失败 3：异常 4：处理中5：未知
 	private String type;
 	private String productId;//产品ID
 	private String partnerOrderNo;//合作方的生成的订单号
 	private String notifyUrl;//回调地址
 	private String orderNo;//运营商订单号
+	private String isRefund;// 是否退款
 
 	private Date beginDate;		// 开始日期
 	private Date endDate;		// 结束日期
@@ -94,6 +95,14 @@ public class Recharge extends DataEntity<Recharge> {
 
 	public void setProductId(String productId) {
 		this.productId = productId;
+	}
+
+	public String getIsRefund() {
+		return isRefund;
+	}
+
+	public void setIsRefund(String isRefund) {
+		this.isRefund = isRefund;
 	}
 
 	public String getPartnerOrderNo() {

@@ -111,6 +111,7 @@
 	
 	<form:form id="saveForm" modelAttribute="recharge" action="${ctx}/business/recharge/save" method="post">
 		<input type="text" name="mobile" id="mobile" value="" />
+		<input type="text" name="balance" id="balance" value="" />
 		<input type="text" name="productId" id="productId" value="" />
 	</form:form>
 </body>

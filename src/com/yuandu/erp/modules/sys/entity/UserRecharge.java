@@ -11,7 +11,7 @@ public class UserRecharge extends DataEntity<UserRecharge>{
 	private static final long serialVersionUID = 1L;
 	
 	private Double balance;
-	private User supplier;
+	private User supplier;		// 渠道商
 	
 	private Date beginDate;		// 开始日期
 	private Date endDate;		// 结束日期

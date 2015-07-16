@@ -32,9 +32,15 @@
 	<form:form id="inputForm" modelAttribute="user" action="${ctx}/sys/user/info" method="post" class="form-horizontal">
 		<sys:message content="${message}"/>
 		<div class="control-group">
-			<label class="control-label">头像:</label>
+			<label class="control-label">账户余额:</label>
 			<div class="controls">
-				
+				${user.balance} 元
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">用户标识:</label>
+			<div class="controls">
+				${user.no} <span class="help-inline"><font color="red">唯一标识，如果被盗请联系管理员！</font> </span>
 			</div>
 		</div>
 		<div class="control-group">

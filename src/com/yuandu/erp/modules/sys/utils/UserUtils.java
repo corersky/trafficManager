@@ -17,11 +17,13 @@ import com.yuandu.erp.modules.sys.dao.MenuDao;
 import com.yuandu.erp.modules.sys.dao.OfficeDao;
 import com.yuandu.erp.modules.sys.dao.RoleDao;
 import com.yuandu.erp.modules.sys.dao.UserDao;
+import com.yuandu.erp.modules.sys.dao.UserRechargeDao;
 import com.yuandu.erp.modules.sys.entity.Area;
 import com.yuandu.erp.modules.sys.entity.Menu;
 import com.yuandu.erp.modules.sys.entity.Office;
 import com.yuandu.erp.modules.sys.entity.Role;
 import com.yuandu.erp.modules.sys.entity.User;
+import com.yuandu.erp.modules.sys.entity.UserRecharge;
 import com.yuandu.erp.modules.sys.security.SystemAuthorizingRealm.Principal;
 import com.yuandu.erp.webservice.utils.ProductCacheUtil;
 
@@ -35,6 +37,7 @@ public class UserUtils {
 	private static MenuDao menuDao = SpringContextHolder.getBean(MenuDao.class);
 	private static AreaDao areaDao = SpringContextHolder.getBean(AreaDao.class);
 	private static OfficeDao officeDao = SpringContextHolder.getBean(OfficeDao.class);
+	private static UserRechargeDao userRechargeDao = SpringContextHolder.getBean(UserRechargeDao.class);
 
 	public static final String USER_CACHE = "userCache";
 	public static final String USER_CACHE_ID_ = "id_";
@@ -104,42 +107,81 @@ public class UserUtils {
 	}
 	
 	/**
-	 * 更新余额(web 用户调用)
-	 * @return
+	 * 退款余额(web 用户调用)  先扣费 后 退款
+	 * @return 扣款状态
 	 * @throws Exception 
 	 */
-	public static void updateBalance(User user,String orderNo,String partnerOrderNo, String status) throws Exception{
+	public static String updateBalance(User user,String orderNo,String partnerOrderNo, String status) throws Exception{
 		//判断工单是否已经扣费
 		Recharge recharge = ProductCacheUtil.getRecharge(partnerOrderNo);
 		
-		if(recharge!=null && orderNo.equals(recharge.getOrderNo())){//符合扣费
-			if(!"1".equals(recharge.getStatus())&&"1".equals(status)){
-				//更新余额
-				double balance = -recharge.getBalance();
-				user.setBalance(balance);
+		if(recharge!=null && orderNo.equals(recharge.getOrderNo())){
+			if(!"1".equals(status)&&!"4".equals(status)){//状态不为1 (1:成功  已经扣款) 不为4 (4:处理中  还在处理)
 				
+				if("1".equals(recharge.getIsRefund())){
+					throw new RuntimeException("订单["+partnerOrderNo+"] 已经退款，无法更新状态");
+				}
+				//更新退款余额
+				double balance = recharge.getBalance();
+				user.setBalance(balance);
 				userDao.updateBlance(user);
 				UserUtils.clearCache(user);//清除缓存
+				
+				//保存消费记录
+				UserRecharge rechargeLog = new UserRecharge();
+				rechargeLog.setBalance(user.getBalance());
+				rechargeLog.setSupplier(user);
+				rechargeLog.setRemarks("订单："+partnerOrderNo+"  充值失败退款！");
+				rechargeLog.preInsert();
+				rechargeLog.setCreateBy(user);
+				rechargeLog.setUpdateBy(user);
+				userRechargeDao.insert(rechargeLog);
+				
+				return "1";//扣款状态
 			}
 		}else{
 			throw new RuntimeException("订单：["+partnerOrderNo+"] 不存在");
 		}
+		return "0";
 	}
 	
 	/**
-	 * 更新余额
+	 * 判断用户余额是否充足
+	 * @param user
+	 * @param balance
+	 * @return
+	 */
+	public static boolean isEnoughBalance(User user,Double balance){
+		if(balance!=null&&user!=null){
+			Double userbalance = user.getBalance();
+			if(userbalance.compareTo(balance)>=0)
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 更新余额  购买后直接扣款
 	 * @return
 	 * @throws Exception 
 	 */
-	public static void updateBalance(User user,Double balance, String status) throws Exception{
-		if("1".equals(status)){//符合扣费
-			//更新余额
-			double update = -balance;
-			user.setBalance(update);
-			
-			userDao.updateBlance(user);
-			UserUtils.clearCache(user);//清楚缓存
-		}
+	public static void updateBalance(User user,Double balance,String partnerOrderNo) throws Exception{
+		//更新余额
+		double update = -balance;
+		user.setBalance(update);
+		
+		userDao.updateBlance(user);
+		UserUtils.clearCache(user);//清楚缓存
+		
+		//保存消费记录
+		UserRecharge rechargeLog = new UserRecharge();
+		rechargeLog.setBalance(user.getBalance());
+		rechargeLog.setSupplier(user);
+		rechargeLog.setRemarks("订单："+partnerOrderNo+"  购买扣款！");
+		rechargeLog.preInsert();
+		rechargeLog.setCreateBy(user);
+		rechargeLog.setUpdateBy(user);
+		userRechargeDao.insert(rechargeLog);
 	}
 	
 	/**
