@@ -1,6 +1,8 @@
 package com.yuandu.erp.modules.sys.utils;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
@@ -8,9 +10,12 @@ import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 
+import com.google.common.collect.Maps;
 import com.yuandu.erp.common.service.BaseService;
 import com.yuandu.erp.common.utils.CacheUtils;
+import com.yuandu.erp.common.utils.DateUtils;
 import com.yuandu.erp.common.utils.SpringContextHolder;
+import com.yuandu.erp.modules.business.dao.RechargeDao;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.sys.dao.AreaDao;
 import com.yuandu.erp.modules.sys.dao.MenuDao;
@@ -22,6 +27,7 @@ import com.yuandu.erp.modules.sys.entity.Area;
 import com.yuandu.erp.modules.sys.entity.Menu;
 import com.yuandu.erp.modules.sys.entity.Office;
 import com.yuandu.erp.modules.sys.entity.Role;
+import com.yuandu.erp.modules.sys.entity.Tactics;
 import com.yuandu.erp.modules.sys.entity.User;
 import com.yuandu.erp.modules.sys.entity.UserRecharge;
 import com.yuandu.erp.modules.sys.security.SystemAuthorizingRealm.Principal;
@@ -38,6 +44,7 @@ public class UserUtils {
 	private static AreaDao areaDao = SpringContextHolder.getBean(AreaDao.class);
 	private static OfficeDao officeDao = SpringContextHolder.getBean(OfficeDao.class);
 	private static UserRechargeDao userRechargeDao = SpringContextHolder.getBean(UserRechargeDao.class);
+	private static RechargeDao rechargeDao = SpringContextHolder.getBean(RechargeDao.class);
 
 	public static final String USER_CACHE = "userCache";
 	public static final String USER_CACHE_ID_ = "id_";
@@ -111,7 +118,7 @@ public class UserUtils {
 	 * @return 扣款状态
 	 * @throws Exception 
 	 */
-	public static String updateBalance(User user,String orderNo,String partnerOrderNo, String status) throws Exception{
+	public static String refundBalance(User user,String orderNo,String partnerOrderNo, String status) throws Exception{
 		//判断工单是否已经扣费
 		Recharge recharge = ProductCacheUtil.getRecharge(partnerOrderNo);
 		
@@ -125,7 +132,8 @@ public class UserUtils {
 				double balance = recharge.getBalance();
 				user.setBalance(balance);
 				userDao.updateBlance(user);
-				UserUtils.clearCache(user);//清除缓存
+				//不清楚缓存  重新获取用户的  策略
+				initFeeRate(user,balance,recharge.getCreateDate());
 				
 				//保存消费记录
 				UserRecharge rechargeLog = new UserRecharge();
@@ -165,14 +173,13 @@ public class UserUtils {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static void updateBalance(User user,Double balance,String partnerOrderNo) throws Exception{
+	public static void purchaseBalance(User user,Double balance,String partnerOrderNo) throws Exception{
 		//更新余额
 		double update = -balance;
 		user.setBalance(update);
-		
 		userDao.updateBlance(user);
-		UserUtils.clearCache(user);//清楚缓存
-		
+		//不清楚缓存  重新获取用户的  策略
+		initFeeRate(user,update,new Date());
 		//保存消费记录
 		UserRecharge rechargeLog = new UserRecharge();
 		rechargeLog.setBalance(user.getBalance());
@@ -182,6 +189,48 @@ public class UserUtils {
 		rechargeLog.setCreateBy(user);
 		rechargeLog.setUpdateBy(user);
 		userRechargeDao.insert(rechargeLog);
+	}
+	
+	public static void initFeeRate(User user,double balance,Date dateTime){
+		//判断是否是当月（如果不是 则不更新）
+		if(!DateUtils.isSameMonth(dateTime,new Date())){return;}
+		
+		// 查询数据库
+		Double monthConsume = user.getMonthConsume();
+		if(monthConsume==null){
+			String timeBegin = DateUtils.getDateTime0();
+			String timeEnd = DateUtils.getDateTime23();
+			monthConsume = rechargeDao.getMonthConsume(user.getId(),timeBegin,timeEnd);
+		}
+		user.setMonthConsume(monthConsume+balance);
+		user.setBalance(user.getBalance()+balance);
+		//获取消费策略
+		List<Tactics> racticsList = user.getTacticsList();
+		Map<String,Tactics> tacticsMap = Maps.newHashMap();
+		
+		for(Tactics tc:racticsList){
+			if(tc.getMinConsume()!=null && monthConsume.compareTo(tc.getMinConsume())>=0){
+				if(tc.getMaxConsume()==null||tc.getMaxConsume()==0){
+					tacticsMap.put(tc.getFeeType(), tc);
+				}else if(monthConsume.compareTo(tc.getMaxConsume())<0){
+					tacticsMap.put(tc.getFeeType(), tc);
+				}
+			}
+		}
+		//更新消费模式
+		for(Tactics tactics:tacticsMap.values()){
+			String feeType = tactics.getFeeType();
+			Double feeRate = tactics.getFeeRate();
+			
+			if("0".equals(feeType)){
+				user.setFeeRateDx(feeRate);
+			}else if("1".equals(feeType)){
+				user.setFeeRateYd(feeRate);
+			}else if("2".equals(feeType)){
+				user.setFeeRateLt(feeRate);
+			}
+		}
+		userDao.updateFeeRate(user);//更新汇率
 	}
 	
 	/**
@@ -201,6 +250,8 @@ public class UserUtils {
 	 * @param user
 	 */
 	public static void clearCache(User user){
+		user = UserUtils.get(user.getId());
+		
 		CacheUtils.remove(USER_CACHE, USER_CACHE_ID_ + user.getId());
 		CacheUtils.remove(USER_CACHE, USER_CACHE_LOGIN_NAME_ + user.getLoginName());
 		CacheUtils.remove(USER_CACHE, USER_CACHE_LOGIN_NAME_ + user.getOldLoginName());
@@ -313,8 +364,53 @@ public class UserUtils {
 		List<Office> officeList = (List<Office>)getCache(CACHE_OFFICE_ALL_LIST);
 		if (officeList == null){
 			officeList = officeDao.findAllList(new Office());
+			putCache(CACHE_OFFICE_ALL_LIST, officeList);
 		}
 		return officeList;
+	}
+	
+	/**
+	 * 重新计算用户费率
+	 * @param user
+	 * @param operators
+	 * @return
+	 */
+	public static Double validateUserRate(User user, String operators) {
+		//判断月消费是否为空
+		Double monthConsume = user.getMonthConsume();
+		if(monthConsume==null){
+			// 查询数据库
+			String timeBegin = DateUtils.getDateTime0();
+			String timeEnd = DateUtils.getDateTime23();
+			monthConsume = rechargeDao.getMonthConsume(user.getId(),timeBegin,timeEnd);
+			user.setMonthConsume(monthConsume);
+		}
+		//获取消费策略
+		List<Tactics> racticsList = user.getTacticsList();
+		Tactics current = null;
+		for(Tactics tc:racticsList){
+			if(!operators.equals(tc.getFeeType())){ break; }//类型统一
+			if(tc.getMinConsume()!=null && monthConsume.compareTo(tc.getMinConsume())>=0){
+				if(tc.getMaxConsume()==null||tc.getMaxConsume()==0){
+					current = tc;
+					break;
+				}else if(monthConsume.compareTo(tc.getMaxConsume())<0){
+					current = tc;
+					break;
+				}
+			}
+		}
+		if(current!=null){
+			if("0".equals(operators)){
+				user.setFeeRateDx(current.getFeeRate());
+			}else if("1".equals(operators)){
+				user.setFeeRateYd(current.getFeeRate());
+			}else if("2".equals(operators)){
+				user.setFeeRateLt(current.getFeeRate());
+			}
+			return current.getFeeRate();
+		}
+		return 1d;
 	}
 	
 	/**
@@ -334,7 +430,6 @@ public class UserUtils {
 			if (principal != null){
 				return principal;
 			}
-//			subject.logout();
 		}catch (UnavailableSecurityManagerException e) {
 			
 		}catch (InvalidSessionException e){
@@ -353,7 +448,6 @@ public class UserUtils {
 			if (session != null){
 				return session;
 			}
-//			subject.logout();
 		}catch (InvalidSessionException e){
 			
 		}
@@ -367,18 +461,15 @@ public class UserUtils {
 	}
 	
 	public static Object getCache(String key, Object defaultValue) {
-//		Object obj = getCacheMap().get(key);
 		Object obj = getSession().getAttribute(key);
 		return obj==null?defaultValue:obj;
 	}
 
 	public static void putCache(String key, Object value) {
-//		getCacheMap().put(key, value);
 		getSession().setAttribute(key, value);
 	}
 
 	public static void removeCache(String key) {
-//		getCacheMap().remove(key);
 		getSession().removeAttribute(key);
 	}
 

@@ -3,6 +3,7 @@ package com.yuandu.erp.modules.business.entity;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.yuandu.erp.common.persistence.DataEntity;
 import com.yuandu.erp.common.utils.IdGen;
@@ -22,6 +23,8 @@ public class Recharge extends DataEntity<Recharge> {
 	private String mobile;//充值手机号
 	private Integer flowSize;
 	private Double balance;//价格
+	private Double adminBalance;//管理员价格
+	private Double feeRate;//使用的费率
 	private String status; //订单状态	0：初始状态 1：成功 2：失败 3：异常 4：处理中5：未知
 	private String type;
 	private String productId;//产品ID
@@ -129,12 +132,30 @@ public class Recharge extends DataEntity<Recharge> {
 		this.orderNo = orderNo;
 	}
 
+	@JsonIgnore
 	public Integer getFlowSize() {
 		return flowSize;
 	}
 
 	public void setFlowSize(Integer flowSize) {
 		this.flowSize = flowSize;
+	}
+
+	public Double getAdminBalance() {
+		return adminBalance;
+	}
+
+	public void setAdminBalance(Double adminBalance) {
+		this.adminBalance = adminBalance;
+	}
+
+	@JsonIgnore
+	public Double getFeeRate() {
+		return feeRate;
+	}
+
+	public void setFeeRate(Double feeRate) {
+		this.feeRate = feeRate;
 	}
 
 	/**

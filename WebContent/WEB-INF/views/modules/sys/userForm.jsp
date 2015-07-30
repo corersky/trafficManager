@@ -61,12 +61,6 @@
 		<form:hidden path="id"/>
 		<sys:message content="${message}"/>
 		<div class="control-group">
-			<label class="control-label">头像:</label>
-			<div class="controls">
-				
-			</div>
-		</div>
-		<div class="control-group">
 			<label class="control-label">归属公司:</label>
 			<div class="controls">
                 <sys:treeselect id="company" name="company.id" value="${user.company.id}" labelName="company.name" labelValue="${user.company.name}"
@@ -125,12 +119,25 @@
 				${user.balance }
 			</div>
 		</div>
-		<div class="control-group">
-			<label class="control-label">商务汇率:</label>
-			<div class="controls">
-				<form:input path="feeRate" htmlEscape="false" maxlength="100" max="1" min="0" cssClass="required"/>
+		<c:if test="${not empty user.id}">
+			<div class="control-group">
+				<label class="control-label">查看策略:</label>
+				<div class="controls">
+					<input id="btnComment" class="btn" type="button" value="查看策略" onclick="viewComment('${ctx}/sys/tactics/tacticsList?user.id=${user.id}&user.name=${user.name}')"/>
+					<script type="text/javascript">
+						function viewComment(href){
+							top.$.jBox.open('iframe:'+href,'查看策略',750,390,{
+								buttons:{"关闭":true},
+								loaded:function(h){
+									$(".jbox-content", top.document).css("overflow-y","hidden");
+								}
+							});
+							return false;
+						}
+					</script>
+				</div>
 			</div>
-		</div>
+		</c:if>
 		<div class="control-group">
 			<label class="control-label">邮箱:</label>
 			<div class="controls">
@@ -181,12 +188,6 @@
 			</div>
 		</div>
 		<c:if test="${not empty user.id}">
-			<div class="control-group">
-				<label class="control-label">创建时间:</label>
-				<div class="controls">
-					<label class="lbl"><fmt:formatDate value="${user.createDate}" type="both" dateStyle="full"/></label>
-				</div>
-			</div>
 			<div class="control-group">
 				<label class="control-label">最后登陆:</label>
 				<div class="controls">

@@ -88,4 +88,17 @@ public interface UserDao extends CrudDao<User> {
 	 */
 	public void updateUserNo(User user);
 
+	/**
+	 * 获取用户余额
+	 * @param id
+	 * @return
+	 */
+	public Double getBalanceById(@Param("userId") String userId);
+
+	/**
+	 * 更新汇率
+	 * @param user
+	 */
+	public void updateFeeRate(User user);
+
 }

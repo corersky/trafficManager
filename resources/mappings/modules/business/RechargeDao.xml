@@ -7,6 +7,7 @@
 		a.mobile,
 		a.flow_size AS "flowSize",
 		a.balance,
+		a.fee_rate AS "feeRate",
 		a.type,
 		a.product_id AS "productId",
 		a.partner_orderno AS "partnerOrderNo",
@@ -42,6 +43,12 @@
 		FROM business_recharge a
 		<include refid="rechargeJoins"/>
 		WHERE a.partner_orderno = #{partnerOrderNo}
+	</select>
+	
+	
+	<select id="getMonthConsume" resultType="double">
+		SELECT sum(balance) FROM business_recharge a where a.CREATE_BY = #{userId} 
+		AND a.create_date BETWEEN #{timeBegin} AND #{timeEnd} AND a.status = '1';
 	</select>
 	
 	<select id="findList" resultType="Recharge">
@@ -87,6 +94,7 @@
 			MOBILE,
 			FLOW_SIZE,
 			BALANCE,
+			FEE_RATE,
 			PRODUCT_ID,
 			PARTNER_ORDERNO,
 			ORDER_NO,
@@ -105,6 +113,7 @@
 			#{mobile},
 			#{flowSize},
 			#{balance},
+			#{feeRate},
 			#{productId},
 			#{partnerOrderNo},
 			#{orderNo},

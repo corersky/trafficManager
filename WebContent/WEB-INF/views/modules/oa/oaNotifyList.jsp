@@ -74,7 +74,7 @@
 					</c:if>
 				</td>
 				<td>
-					<fmt:formatDate value="${oaNotify.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
+					<fmt:formatDate value="${oaNotify.updateDate}" pattern="yyyy-MM-dd HH:mm"/>
 				</td>
 				<c:if test="${!requestScope.oaNotify.self}"><shiro:hasPermission name="oa:oaNotify:edit"><td>
     				<a href="${ctx}/oa/oaNotify/form?id=${oaNotify.id}">修改</a>

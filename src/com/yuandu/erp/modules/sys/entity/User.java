@@ -43,11 +43,15 @@ public class User extends DataEntity<User> {
 	private String oldLoginIp;	// 上次登陆IP
 	private Date oldLoginDate;	// 上次登陆日期
 	private Double balance;	// 可用余额
-	private Double feeRate;	//商务汇率
+	private Double feeRateLt;	// 联通商务汇率
+	private Double feeRateYd;	// 移动商务汇率
+	private Double feeRateDx;	// 电信商务汇率
 	
 	private Role role;	// 根据角色查询用户条件
+	private Double monthConsume; // 当月消费（动态计算）
 	
 	private List<Role> roleList = Lists.newArrayList(); // 拥有角色列表
+	private List<Tactics> tacticsList = Lists.newArrayList(); // 策略列表
 
 	public User() {
 		super();
@@ -107,12 +111,36 @@ public class User extends DataEntity<User> {
 		this.balance = balance;
 	}
 
-	public Double getFeeRate() {
-		return feeRate;
+	public Double getFeeRateLt() {
+		return feeRateLt;
 	}
 
-	public void setFeeRate(Double feeRate) {
-		this.feeRate = feeRate;
+	public void setFeeRateLt(Double feeRateLt) {
+		this.feeRateLt = feeRateLt;
+	}
+
+	public Double getFeeRateYd() {
+		return feeRateYd;
+	}
+
+	public Double getMonthConsume() {
+		return monthConsume;
+	}
+
+	public void setMonthConsume(Double monthConsume) {
+		this.monthConsume = monthConsume;
+	}
+
+	public void setFeeRateYd(Double feeRateYd) {
+		this.feeRateYd = feeRateYd;
+	}
+
+	public Double getFeeRateDx() {
+		return feeRateDx;
+	}
+
+	public void setFeeRateDx(Double feeRateDx) {
+		this.feeRateDx = feeRateDx;
 	}
 
 	@JsonIgnore
@@ -278,6 +306,14 @@ public class User extends DataEntity<User> {
 	
 	public void setRoleList(List<Role> roleList) {
 		this.roleList = roleList;
+	}
+
+	public List<Tactics> getTacticsList() {
+		return tacticsList;
+	}
+
+	public void setTacticsList(List<Tactics> tacticsList) {
+		this.tacticsList = tacticsList;
 	}
 
 	@JsonIgnore

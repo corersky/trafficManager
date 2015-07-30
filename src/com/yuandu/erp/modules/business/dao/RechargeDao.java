@@ -30,5 +30,14 @@ public interface RechargeDao extends CrudDao<Recharge> {
 	 * @return
 	 */
 	public Recharge getByPartnerOrder(@Param(value="partnerOrderNo")String partnerOrderNo);
+
+	/**
+	 * 查询当月用户消费金额
+	 * @param id
+	 * @param timeBegin
+	 * @param timeEnd
+	 * @return
+	 */
+public Double getMonthConsume(@Param("userId") String userId, @Param("timeBegin")  String timeBegin, @Param("timeEnd")  String timeEnd);
 	
 }

@@ -14,7 +14,7 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	private String partnerOrderNo;	//		合作方的订单号	
 	private String mobile;			//		手机号	
 	private Long partnerId;			//		合作方ID	
-	private Integer operators;		//		运营商	0：电信 1：移动 2：联通
+	private String operators;		//		运营商	0：电信 1：移动 2：联通
 	private Long productId;			//		商品ID	
 	private String productName;		//		商品名称	
 	private Integer flowSize;		//		流量大小	单位（MB）
@@ -25,6 +25,8 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	private Double totalFee	;		//	    合计金额	
 	private String status;			//		订单状态	0：初始状态 1：成功 2：失败 3：异常 4：处理中5：未知
 	private String notifyUrl;		//		回调地址	
+	
+	private Double feeRate;			//		用户折扣率
 	
 	public String getOrderNo() {
 		return orderNo;
@@ -50,10 +52,10 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	public void setPartnerId(Long partnerId) {
 		this.partnerId = partnerId;
 	}
-	public Integer getOperators() {
+	public String getOperators() {
 		return operators;
 	}
-	public void setOperators(Integer operators) {
+	public void setOperators(String operators) {
 		this.operators = operators;
 	}
 	public Long getProductId() {
@@ -94,6 +96,12 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	}
 	public Double getTotalFee() {
 		return totalFee;
+	}
+	public Double getFeeRate() {
+		return feeRate;
+	}
+	public void setFeeRate(Double feeRate) {
+		this.feeRate = feeRate;
 	}
 	public void setTotalFee(Double totalFee) {
 		this.totalFee = totalFee;

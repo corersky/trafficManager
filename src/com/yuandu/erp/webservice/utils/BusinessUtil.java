@@ -12,6 +12,7 @@ import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.sys.entity.User;
 import com.yuandu.erp.modules.sys.utils.DictUtils;
+import com.yuandu.erp.modules.sys.utils.UserUtils;
 import com.yuandu.erp.webservice.bean.ProductPojo;
 
 public class BusinessUtil {
@@ -126,16 +127,41 @@ public class BusinessUtil {
 		PartnerOrderResponse response = (PartnerOrderResponse) JsonMapper.fromJsonString(result, PartnerOrderResponse.class);
 		response.isCorrect();
 		//设置该用户的扣款
-		Double userRate = user.getFeeRate();
-		Double balance = response.getData().getFee();
-		if(balance!=null&&userRate!=null){
+		Double userRate = getFeeRate(user, response.getData().getOperators());
+		Double fee = response.getData().getFee();//单价
+		if(fee!=null&&userRate!=null){
 			String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
 			double rate = StringUtils.toDouble(adminRate);
-			balance = balance/rate * userRate;
-			response.getData().setBalance(balance);
+			fee = fee/rate;//实际单价
+			response.getData().setFee(fee);
+			
+			Double balance = fee * userRate;
+			response.getData().setBalance(balance);//折扣后单价
+			response.getData().setFeeRate(userRate);
 		}
 		return response;
 	}
+	
+	/**
+	 * 获取用户费率
+	 * @param user
+	 * @param operators
+	 * @return
+	 */
+	private static final Double getFeeRate(User user,String operators){
+		Double userRate = 1d;
+		if("0".equals(operators)){
+			userRate = user.getFeeRateDx();
+		}else if("1".equals(operators)){
+			userRate = user.getFeeRateYd();
+		}else if("2".equals(operators)){
+			userRate = user.getFeeRateLt();
+		}
+		if(userRate==null||userRate==0){//重新计算用户费率
+			userRate = UserUtils.validateUserRate(user,operators);
+		}
+		return userRate;
+	} 
 	
 	/*
 	 * 获取合作方的可售商品列表
@@ -222,9 +248,9 @@ public class BusinessUtil {
 	
 	private static final void validateRate(User user,ProductResponse response){
 		//设置该用户的扣款
-		Double userRate = user.getFeeRate();
 		String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
 		for(ProductPojo pojo:response.getData()){
+			Double userRate = getFeeRate(user, pojo.getOperators());//每个产品费率不一样
 			Double balance = pojo.getFee();
 			if(balance!=null&&userRate!=null){
 				double rate = StringUtils.toDouble(adminRate);

@@ -188,25 +188,11 @@ public class SystemService extends BaseService implements InitializingBean {
 	 */
 	@Transactional(readOnly = false)
 	public void updateBlance(User user) throws Exception{
-		//如果对管理员充值 则不校验
+		//如果对管理员充值 则不校验（新充值规则不对管理员扣款）
 		User admin = UserUtils.getUser();
-		if(!user.isAdmin()){
-			//判断管理员余额
-			if(!UserUtils.isEnoughBalance(admin, user.getBalance())){
-				throw new RuntimeException("您的余额不足，请及时充值！");
-			}
-			//更新管理员呢余额
-			Double adminBalance = 0d;
-			if(user.getBalance()!=null&&user.getFeeRate()!=null){
-				adminBalance = user.getBalance()*user.getFeeRate();
-			}
-			admin.setBalance(-adminBalance);
-			userDao.updateBlance(admin);
-			UserUtils.clearCache(admin);
-		}
 		//更新渠道商余额
 		userDao.updateBlance(user);
-		UserUtils.clearCache(user);// 清除用户缓存
+		UserUtils.clearCache(user);//充值接口 直接清楚缓存
 		
 		//产生管理员扣费记录
 		UserRecharge recharge = new UserRecharge();

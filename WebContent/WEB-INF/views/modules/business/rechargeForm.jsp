@@ -45,10 +45,12 @@
 	    	return false;
 	    }
 		
-		function buyFlow(productId,balance){
+		function buyFlow(productId,balance,adminBalance,feeRate){
 			$('#mobile').val($('#mobileSearch').val());
 			$('#productId').val(productId);
 			$('#balance').val(balance);
+			$('#adminBalance').val(adminBalance);
+			$('#feeRate').val(feeRate);
 			
 			$("#saveForm").submit();
 			return false;
@@ -99,7 +101,7 @@
 				<td>${product.salesCount }</td>
 				<shiro:hasPermission name="business:recharge:edit"><td>
     				<c:if test="${product.status eq '1' and  product.salesCount>0}">
-						<a href="javascript:void(0)" onclick="buyFlow(${product.id},${product.balance });">购买</a>
+						<a href="javascript:void(0)" onclick="buyFlow(${product.id},${product.balance },${product.fee },${product.feeRate });">购买</a>
     				</c:if>
 				</td></shiro:hasPermission>
 			</tr>
@@ -113,7 +115,9 @@
 	<form:form id="saveForm" modelAttribute="recharge" action="${ctx}/business/recharge/save" method="post">
 		<input type="text" name="mobile" id="mobile" value="" />
 		<input type="text" name="balance" id="balance" value="" />
+		<input type="text" name="adminBalance" id="adminBalance" value="" />
 		<input type="text" name="productId" id="productId" value="" />
+		<input type="text" name="feeRate" id="feeRate" value="" />
 	</form:form>
 </body>
 </html>

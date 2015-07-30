@@ -1,6 +1,7 @@
 package com.yuandu.erp.common.utils;
 
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -61,6 +62,19 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 	 */
 	public static String getDateTime() {
 		return formatDate(new Date(), "yyyy-MM-dd HH:mm:ss");
+	}
+	
+	/**
+	 * 得到当前日期和时间字符串 格式（yyyy-MM-dd HH:mm:ss）
+	 */
+	public static String getDateTime23() {
+		return formatDate(new Date(), "yyyy-MM-dd 23:59:59");
+	}
+	/**
+	 * 得到当前日期和时间字符串 格式（yyyy-MM-dd HH:mm:ss）
+	 */
+	public static String getDateTime0() {
+		return formatDate(new Date(), "yyyy-MM-dd 00:00:00");
 	}
 
 	/**
@@ -166,13 +180,21 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 	}
 	
 	/**
-	 * @param args
-	 * @throws ParseException
+	 * 是否相同月份
+	 * @param dateTime
+	 * @param date
+	 * @return
 	 */
-	public static void main(String[] args) throws ParseException {
-//		System.out.println(formatDate(parseDate("2010/3/6")));
-//		System.out.println(getDate("yyyy年MM月dd日 E"));
-//		long time = new Date().getTime()-parseDate("2012-11-19").getTime();
-//		System.out.println(time/(24*60*60*1000));
+	public static boolean isSameMonth(Date dateTim1, Date dateTime2) {
+		Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(dateTim1);
+
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(dateTime2);
+
+        boolean isSameYear = cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
+        boolean isSameMonth = isSameYear && cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH);
+        
+		return isSameMonth;
 	}
 }

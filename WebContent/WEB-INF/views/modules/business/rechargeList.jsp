@@ -69,7 +69,7 @@
 				<td>${recharge.type}</td>
 				<td>${fns:getDictLabel(recharge.status, 'recharge_status', '')}</td>
 				<td>${recharge.createBy.name}</td>
-				<td><fmt:formatDate value="${recharge.createDate}" type="both"/></td>
+				<td><fmt:formatDate value="${recharge.createDate}" pattern="yyyy-MM-dd HH:mm"/></td>
 				<shiro:hasPermission name="business:recharge:edit"><td>
     				<a href="${ctx}/business/recharge/partnerInfo?partnerOrderNo=${recharge.partnerOrderNo}">查看</a>
 					<a href="${ctx}/business/recharge/delete?id=${recharge.id}" onclick="return confirmx('确认要删除该充值记录吗？', this.href)">删除</a>
