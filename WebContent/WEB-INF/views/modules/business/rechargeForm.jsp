@@ -45,12 +45,10 @@
 	    	return false;
 	    }
 		
-		function buyFlow(productId,balance,adminBalance,feeRate){
+		function buyFlow(productId,balance){
 			$('#mobile').val($('#mobileSearch').val());
 			$('#productId').val(productId);
 			$('#balance').val(balance);
-			$('#adminBalance').val(adminBalance);
-			$('#feeRate').val(feeRate);
 			
 			$("#saveForm").submit();
 			return false;
@@ -78,7 +76,8 @@
 			<th>运营商</th>
 			<th class="sort-column login_name">城市类型</th>
 			<th class="sort-column name">省市名称</th>
-			<th>单价</th>
+			<th>原价格</th>
+			<th>优惠价格</th>
 			<th>流量大小</th>
 			<th>状态</th>
 			<th>支持的网络类型</th>
@@ -94,6 +93,7 @@
 				<td>${fns:getDictLabel(product.operators, 'recharge_operators', '')}</td>
 				<td>${fns:getDictLabel(product.cityType, 'recharge_citytype', '')}</td>
 				<td>${product.cityName}</td>
+				<td>${product.fee}</td>
 				<td>${product.balance}</td>
 				<td>${product.flowSize }MB</td>
 				<td>${fns:getDictLabel(product.status, 'recharge_status', '不可用')}</td>
@@ -101,7 +101,7 @@
 				<td>${product.salesCount }</td>
 				<shiro:hasPermission name="business:recharge:edit"><td>
     				<c:if test="${product.status eq '1' and  product.salesCount>0}">
-						<a href="javascript:void(0)" onclick="buyFlow(${product.id},${product.balance },${product.fee },${product.feeRate });">购买</a>
+						<a href="javascript:void(0)" onclick="buyFlow(${product.id},${product.balance });">购买</a>
     				</c:if>
 				</td></shiro:hasPermission>
 			</tr>
@@ -113,11 +113,9 @@
 	</div>
 	
 	<form:form id="saveForm" modelAttribute="recharge" action="${ctx}/business/recharge/save" method="post">
-		<input type="text" name="mobile" id="mobile" value="" />
-		<input type="text" name="balance" id="balance" value="" />
-		<input type="text" name="adminBalance" id="adminBalance" value="" />
-		<input type="text" name="productId" id="productId" value="" />
-		<input type="text" name="feeRate" id="feeRate" value="" />
+		<input type="hidden" name="mobile" id="mobile" value="" />
+		<input type="hidden" name="balance" id="balance" value="" />
+		<input type="hidden" name="productId" id="productId" value="" />
 	</form:form>
 </body>
 </html>

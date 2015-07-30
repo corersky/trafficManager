@@ -3,8 +3,8 @@ package com.yuandu.erp.modules.business.entity;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yuandu.erp.common.persistence.DataEntity;
 import com.yuandu.erp.common.utils.IdGen;
 import com.yuandu.erp.modules.sys.entity.User;
@@ -23,7 +23,7 @@ public class Recharge extends DataEntity<Recharge> {
 	private String mobile;//充值手机号
 	private Integer flowSize;
 	private Double balance;//价格
-	private Double adminBalance;//管理员价格
+	private Double fee;	   //实际单价价格
 	private Double feeRate;//使用的费率
 	private String status; //订单状态	0：初始状态 1：成功 2：失败 3：异常 4：处理中5：未知
 	private String type;
@@ -141,15 +141,14 @@ public class Recharge extends DataEntity<Recharge> {
 		this.flowSize = flowSize;
 	}
 
-	public Double getAdminBalance() {
-		return adminBalance;
+	public Double getFee() {
+		return fee;
 	}
 
-	public void setAdminBalance(Double adminBalance) {
-		this.adminBalance = adminBalance;
+	public void setFee(Double fee) {
+		this.fee = fee;
 	}
 
-	@JsonIgnore
 	public Double getFeeRate() {
 		return feeRate;
 	}

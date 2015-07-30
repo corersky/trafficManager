@@ -59,12 +59,13 @@
 	</form:form>
 	<sys:message content="${message}"/>
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
-		<thead><tr><th>手机号</th><th>流量</th><th>价格</th><th class="sort-column login_name">业务类型</th><th class="sort-column name">状态</th><th>操作员</th><th>充值时间</th><shiro:hasPermission name="business:recharge:edit"><th>操作</th></shiro:hasPermission></tr></thead>
+		<thead><tr><th>手机号</th><th>流量</th><th>原价格</th><th>优惠价格</th><th class="sort-column login_name">业务类型</th><th class="sort-column name">状态</th><th>操作员</th><th>充值时间</th><shiro:hasPermission name="business:recharge:edit"><th>操作</th></shiro:hasPermission></tr></thead>
 		<tbody>
 		<c:forEach items="${page.list}" var="recharge">
 			<tr>
 				<td>${recharge.mobile}</td>
 				<td>${recharge.flowSize}</td>
+				<td>${recharge.fee}</td>
 				<td>${recharge.balance}</td>
 				<td>${recharge.type}</td>
 				<td>${fns:getDictLabel(recharge.status, 'recharge_status', '')}</td>

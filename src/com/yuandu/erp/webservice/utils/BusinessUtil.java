@@ -216,7 +216,6 @@ public class BusinessUtil {
 		String authAppkey = Global.getConfig("flow.authAppkey");
 		String appSecrect = Global.getConfig("flow.appSecrect");
 		String authTimespan = DateUtils.formatDate(new Date(), format);
-		
 		mobile = ProductCacheUtil.encodeMsg(mobile);
 		
 		StringBuffer param = new StringBuffer();
@@ -251,10 +250,12 @@ public class BusinessUtil {
 		String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
 		for(ProductPojo pojo:response.getData()){
 			Double userRate = getFeeRate(user, pojo.getOperators());//每个产品费率不一样
-			Double balance = pojo.getFee();
-			if(balance!=null&&userRate!=null){
+			Double fee = pojo.getFee();
+			if(fee!=null&&userRate!=null){
 				double rate = StringUtils.toDouble(adminRate);
-				balance = balance/rate * userRate;
+				fee = fee/rate;
+				pojo.setFee(fee);
+				double balance = fee * userRate;
 				pojo.setBalance(balance);
 			}
 		}

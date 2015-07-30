@@ -67,10 +67,11 @@ public class RechargeService extends CrudService<RechargeDao, Recharge> {
 		//设置balance
 		Double balance = order.getBalance();
 		recharge.setFeeRate(order.getFeeRate());
+		recharge.setFee(order.getFee());//实际单价
 		recharge.setBalance(balance);
 		dao.insert(recharge);
 		//更新用户余额（直接扣款  后期退款  超级管理员扣款）
-		UserUtils.purchaseBalance(UserUtils.getUser(),recharge.getBalance(),order.getPartnerOrderNo());
+		UserUtils.purchaseBalance(UserUtils.getUser(),recharge.getBalance(),recharge.getFee(),order.getPartnerOrderNo());
 		
 		return response;
 	}

@@ -25,7 +25,6 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	private Double totalFee	;		//	    合计金额	
 	private String status;			//		订单状态	0：初始状态 1：成功 2：失败 3：异常 4：处理中5：未知
 	private String notifyUrl;		//		回调地址	
-	
 	private Double feeRate;			//		用户折扣率
 	
 	public String getOrderNo() {

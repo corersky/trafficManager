@@ -15,6 +15,7 @@ import com.yuandu.erp.common.service.BaseService;
 import com.yuandu.erp.common.utils.CacheUtils;
 import com.yuandu.erp.common.utils.DateUtils;
 import com.yuandu.erp.common.utils.SpringContextHolder;
+import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.business.dao.RechargeDao;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.sys.dao.AreaDao;
@@ -121,7 +122,6 @@ public class UserUtils {
 	public static String refundBalance(User user,String orderNo,String partnerOrderNo, String status) throws Exception{
 		//判断工单是否已经扣费
 		Recharge recharge = ProductCacheUtil.getRecharge(partnerOrderNo);
-		
 		if(recharge!=null && orderNo.equals(recharge.getOrderNo())){
 			if(!"1".equals(status)&&!"4".equals(status)){//状态不为1 (1:成功  已经扣款) 不为4 (4:处理中  还在处理)
 				
@@ -132,9 +132,10 @@ public class UserUtils {
 				double balance = recharge.getBalance();
 				user.setBalance(balance);
 				userDao.updateBlance(user);
+				Double fee = recharge.getFee();
+				updateAdminBalance(fee);
 				//不清楚缓存  重新获取用户的  策略
 				initFeeRate(user,balance,recharge.getCreateDate());
-				
 				//保存消费记录
 				UserRecharge rechargeLog = new UserRecharge();
 				rechargeLog.setBalance(user.getBalance());
@@ -153,6 +154,18 @@ public class UserUtils {
 		return "0";
 	}
 	
+	private static void updateAdminBalance(Double fee) {
+		String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
+		//更新
+		if(fee!=null&&adminRate!=null){
+			User admin = UserUtils.get("1");
+			admin.setBalance(fee*StringUtils.toDouble(adminRate));
+			userDao.updateBlance(admin);
+			
+			UserUtils.clearCache(admin);
+		}
+	}
+
 	/**
 	 * 判断用户余额是否充足
 	 * @param user
@@ -173,11 +186,12 @@ public class UserUtils {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static void purchaseBalance(User user,Double balance,String partnerOrderNo) throws Exception{
+	public static void purchaseBalance(User user,Double balance,Double fee,String partnerOrderNo) throws Exception{
 		//更新余额
 		double update = -balance;
 		user.setBalance(update);
 		userDao.updateBlance(user);
+		updateAdminBalance(-fee);//更新管理员价格
 		//不清楚缓存  重新获取用户的  策略
 		initFeeRate(user,update,new Date());
 		//保存消费记录
