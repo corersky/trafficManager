@@ -121,12 +121,12 @@
 		</div>
 		<c:if test="${not empty user.id}">
 			<div class="control-group">
-				<label class="control-label">查看策略:</label>
+				<label class="control-label">优惠策略:</label>
 				<div class="controls">
-					<input id="btnComment" class="btn" type="button" value="查看策略" onclick="viewComment('${ctx}/sys/tactics/tacticsList?user.id=${user.id}&user.name=${user.name}')"/>
+					<input id="btnComment" class="btn" type="button" value="优惠策略" onclick="viewComment('${ctx}/sys/tactics/tacticsList?user.id=${user.id}&user.name=${user.name}')"/>
 					<script type="text/javascript">
 						function viewComment(href){
-							top.$.jBox.open('iframe:'+href,'查看策略',750,390,{
+							top.$.jBox.open('iframe:'+href,'优惠策略',750,390,{
 								buttons:{"关闭":true},
 								loaded:function(h){
 									$(".jbox-content", top.document).css("overflow-y","hidden");

@@ -11,6 +11,35 @@
 			$("#searchForm").submit();
 	    	return false;
 	    }
+		
+		function viewTactis(href){
+			top.$.jBox.open('iframe:'+href,'增加策略',750,390,{
+				buttons:{"确定":true,"关闭":false},
+				loaded:function(h){
+					$(".jbox-content", top.document).css("overflow-y","hidden");
+				},submit:function(v, h, f){
+					if(v){//确认提交
+						if(!h.find("iframe")[0].contentWindow.validate()){
+							return false;
+						}
+						var form = h.find("iframe")[0].contentWindow.$("#inputForm");
+						
+						$.ajax({      
+							type: "POST",      
+							url: $(form).attr('action'),     
+						 	data: $(form).serialize(),
+						    success: function(result){
+						    	top.$.jBox.tip.mess=1;
+						    	top.$.jBox.tip(result.msg,"info",{persistent:true,opacity:0});
+						    	$("#messageBox").show();
+						    	location.replace(location);
+						    }  
+						 });
+					}
+				}
+			});
+			return false;
+		}
 	</script>
 </head>
 <body>
@@ -18,7 +47,7 @@
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<ul class="ul-form">
-			<li><label>用户：</label>
+		    <li><label>用户：</label>
 			<sys:treeselect id="tactics" name="user.id" value="${tactics.user.id}" labelName="user.name" labelValue="${tactics.user.name}"
 				title="用户" url="/sys/office/treeData?type=3" cssClass="input-small" notAllowSelectParent="true" />
 			</li>
@@ -30,6 +59,8 @@
 			</form:select>
 			</li>
 			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();"/>
+			<a href="${ctx}/sys/tactics/form?user.id=${user.id}&user.name=${user.name}" onclick="return viewTactis(this.href);">
+			    <input id="btnSubmit" class="btn btn-primary" type="submit" value="增加策略"></a>
 			<li class="clearfix"></li>
 		</ul>
 	</form:form>
