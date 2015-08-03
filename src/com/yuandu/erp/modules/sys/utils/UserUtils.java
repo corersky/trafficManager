@@ -397,13 +397,16 @@ public class UserUtils {
 			String timeBegin = DateUtils.getDateTime0();
 			String timeEnd = DateUtils.getDateTime23();
 			monthConsume = rechargeDao.getMonthConsume(user.getId(),timeBegin,timeEnd);
+			if(monthConsume==null){
+				monthConsume = 0d;
+			}
 			user.setMonthConsume(monthConsume);
 		}
 		//获取消费策略
 		List<Tactics> racticsList = user.getTacticsList();
 		Tactics current = null;
 		for(Tactics tc:racticsList){
-			if(!operators.equals(tc.getFeeType())){ break; }//类型统一
+			if(!operators.equals(tc.getFeeType())){ continue; }//类型统一
 			if(tc.getMinConsume()!=null && monthConsume.compareTo(tc.getMinConsume())>=0){
 				if(tc.getMaxConsume()==null||tc.getMaxConsume()==0){
 					current = tc;

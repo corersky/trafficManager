@@ -1,6 +1,7 @@
 package com.yuandu.erp.webservice.utils;
 
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.Date;
 
 import com.yuandu.erp.common.config.Global;
@@ -248,14 +249,18 @@ public class BusinessUtil {
 	private static final void validateRate(User user,ProductResponse response){
 		//设置该用户的扣款
 		String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
+		DecimalFormat df = new DecimalFormat("#.##");
 		for(ProductPojo pojo:response.getData()){
 			Double userRate = getFeeRate(user, pojo.getOperators());//每个产品费率不一样
 			Double fee = pojo.getFee();
 			if(fee!=null&&userRate!=null){
 				double rate = StringUtils.toDouble(adminRate);
 				fee = fee/rate;
+				fee = Double.parseDouble(df.format(fee));
 				pojo.setFee(fee);
+				
 				double balance = fee * userRate;
+				balance = Double.parseDouble(df.format(balance));
 				pojo.setBalance(balance);
 			}
 		}
