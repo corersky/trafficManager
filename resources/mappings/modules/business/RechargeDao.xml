@@ -49,7 +49,7 @@
 	
 	<select id="getMonthConsume" resultType="double">
 		SELECT sum(balance) FROM business_recharge a where a.CREATE_BY = #{userId} 
-		AND a.create_date BETWEEN #{timeBegin} AND #{timeEnd} AND a.status = '1';
+		AND a.create_date BETWEEN #{timeBegin} AND #{timeEnd} AND (a.status = '1' OR a.status = '4');
 	</select>
 	
 	<select id="findList" resultType="Recharge">

@@ -130,8 +130,11 @@ public class UserUtils {
 				}
 				//更新退款余额
 				double balance = recharge.getBalance();
-				user.setBalance(balance);
-				userDao.updateBlance(user);
+				User updateUser = new User();
+				updateUser.setId(user.getId());
+				updateUser.setBalance(balance);
+				userDao.updateBlance(updateUser);
+				
 				Double fee = recharge.getFee();
 				updateAdminBalance(fee);
 				//不清楚缓存  重新获取用户的  策略
@@ -189,8 +192,11 @@ public class UserUtils {
 	public static void purchaseBalance(User user,Double balance,Double fee,String partnerOrderNo) throws Exception{
 		//更新余额
 		double update = -balance;
-		user.setBalance(update);
-		userDao.updateBlance(user);
+		User updateUser = new User();
+		updateUser.setId(user.getId());
+		updateUser.setBalance(balance);
+		userDao.updateBlance(updateUser);
+		
 		updateAdminBalance(-fee);//更新管理员价格
 		//不清楚缓存  重新获取用户的  策略
 		initFeeRate(user,update,new Date());
@@ -215,8 +221,12 @@ public class UserUtils {
 			String timeBegin = DateUtils.getDateTime0();
 			String timeEnd = DateUtils.getDateTime23();
 			monthConsume = rechargeDao.getMonthConsume(user.getId(),timeBegin,timeEnd);
+			
+			if(monthConsume==null){
+				monthConsume = 0d;
+			}
 		}
-		user.setMonthConsume(monthConsume+balance);
+		user.setMonthConsume(monthConsume-balance);
 		user.setBalance(user.getBalance()+balance);
 		//获取消费策略
 		List<Tactics> racticsList = user.getTacticsList();
