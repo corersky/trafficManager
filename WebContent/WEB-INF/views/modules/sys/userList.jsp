@@ -5,33 +5,6 @@
 	<title>用户管理</title>
 	<meta name="decorator" content="default"/>
 	<script type="text/javascript">
-		function viewTactis(href){
-			top.$.jBox.open('iframe:'+href,'添加策略',750,390,{
-				buttons:{"确定":true,"关闭":false},
-				loaded:function(h){
-					$(".jbox-content", top.document).css("overflow-y","hidden");
-				},submit:function(v, h, f){
-					if(v){//确认提交
-						if(!h.find("iframe")[0].contentWindow.validate()){
-							return false;
-						}
-						var form = h.find("iframe")[0].contentWindow.$("#inputForm");
-						
-						$.ajax({      
-							type: "POST",      
-							url: $(form).attr('action'),     
-						 	data: $(form).serialize(),
-						    success: function(result){
-						    	top.$.jBox.tip.mess=1;
-						    	top.$.jBox.tip(result.msg,"info",{persistent:true,opacity:0});
-						    	$("#messageBox").show();
-						    }  
-						 });
-					}
-				}
-			});
-			return false;
-		}
 		function page(n,s){
 			if(n) $("#pageNo").val(n);
 			if(s) $("#pageSize").val(s);
@@ -101,7 +74,6 @@
 				<td>${user.feeRateLt}｜${user.feeRateYd}｜${user.feeRateDx}</td>
 				<td>${user.mobile}</td>
 				<shiro:hasPermission name="sys:user:edit"><td>
-					<a href="${ctx}/sys/tactics/form?user.id=${user.id}&user.name=${user.name}" onclick="return viewTactis(this.href);">添加策略</a>
     				<a href="${ctx}/sys/user/form?id=${user.id}">修改</a>
     				<a href="javascript:void(0);" onclick="recharge('${user.id}','${user.name }','${user.no }')">充值</a>
 					<a href="${ctx}/sys/user/delete?id=${user.id}" onclick="return confirmx('确认要删除该用户吗？', this.href)">删除</a>
