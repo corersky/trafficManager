@@ -1,5 +1,6 @@
 package com.yuandu.erp.modules.business.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yuandu.erp.common.persistence.DataEntity;
 
 /**
@@ -18,8 +19,9 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	private Long productId;			//		商品ID	
 	private String productName;		//		商品名称	
 	private Integer flowSize;		//		流量大小	单位（MB）
-	private Double fee;				//		单价	
-	private Double balance;			//		账户扣费
+	private Double fee;				//		实际单价	
+	private Double balance;			//		优惠价格
+	private Double adminFee;		//		管理员价格
 	private String flowType;		//		流量类型	
 	private Integer count;			//		购买的商品数量	
 	private Double totalFee	;		//	    合计金额	
@@ -68,6 +70,13 @@ public class PartnerOrder extends DataEntity<PartnerOrder>{
 	}
 	public void setProductName(String productName) {
 		this.productName = productName;
+	}
+	@JsonIgnore
+	public Double getAdminFee() {
+		return adminFee;
+	}
+	public void setAdminFee(Double adminFee) {
+		this.adminFee = adminFee;
 	}
 	public Integer getFlowSize() {
 		return flowSize;

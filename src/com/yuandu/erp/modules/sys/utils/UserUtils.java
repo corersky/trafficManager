@@ -15,7 +15,6 @@ import com.yuandu.erp.common.service.BaseService;
 import com.yuandu.erp.common.utils.CacheUtils;
 import com.yuandu.erp.common.utils.DateUtils;
 import com.yuandu.erp.common.utils.SpringContextHolder;
-import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.business.dao.RechargeDao;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.sys.dao.AreaDao;
@@ -135,8 +134,8 @@ public class UserUtils {
 				updateUser.setBalance(balance);
 				userDao.updateBlance(updateUser);
 				
-				Double fee = recharge.getFee();
-				updateAdminBalance(fee);
+				Double adminFee = recharge.getAdminFee();
+				updateAdminBalance(adminFee);
 				//不清楚缓存  重新获取用户的  策略
 				initFeeRate(user,balance,recharge.getCreateDate());
 				//保存消费记录
@@ -157,16 +156,29 @@ public class UserUtils {
 		return "0";
 	}
 	
-	private static void updateAdminBalance(Double fee) {
-		String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
+	private static void updateAdminBalance(Double adminFee) {
 		//更新
-		if(fee!=null&&adminRate!=null){
+		if(adminFee!=null){
 			User admin = UserUtils.get("1");
-			admin.setBalance(fee*StringUtils.toDouble(adminRate));
+			admin.setBalance(adminFee);
 			userDao.updateBlance(admin);
 			
 			UserUtils.clearCache(admin);
 		}
+	}
+	
+	//0：电信 1：移动 2：联通
+	public static String getCommonFeeRate(String operate){
+		String feeRate = "1";
+		
+		if("0".equals(operate)){
+			feeRate = DictUtils.getDictValue("电信商务汇率", "company_rate", "1");
+		}else if("1".equals(operate)){
+			feeRate = DictUtils.getDictValue("移动商务汇率", "company_rate", "1");
+		}else if("2".equals(operate)){
+			feeRate = DictUtils.getDictValue("联通商务汇率", "company_rate", "1");
+		}
+		return feeRate;
 	}
 
 	/**
@@ -189,7 +201,7 @@ public class UserUtils {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static void purchaseBalance(User user,Double balance,Double fee,String partnerOrderNo) throws Exception{
+	public static void purchaseBalance(User user,Double balance,Double adminFee,String partnerOrderNo) throws Exception{
 		//更新余额
 		double update = -balance;
 		User updateUser = new User();
@@ -197,7 +209,7 @@ public class UserUtils {
 		updateUser.setBalance(update);
 		userDao.updateBlance(updateUser);
 		
-		updateAdminBalance(-fee);//更新管理员价格
+		updateAdminBalance(-adminFee);//更新管理员价格
 		//不清楚缓存  重新获取用户的  策略
 		initFeeRate(user,update,new Date());
 		//保存消费记录
@@ -394,7 +406,7 @@ public class UserUtils {
 	}
 	
 	/**
-	 * 重新计算用户费率
+	 * 重新计算用户汇率
 	 * @param user
 	 * @param operators
 	 * @return

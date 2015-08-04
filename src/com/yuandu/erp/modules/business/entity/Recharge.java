@@ -25,6 +25,7 @@ public class Recharge extends DataEntity<Recharge> {
 	private Double balance;//价格
 	private Double fee;	   //实际单价价格
 	private Double feeRate;//使用的费率
+	private Double adminFee;//管理员价格
 	private String status; //订单状态	0：初始状态 1：成功 2：失败 3：异常 4：处理中5：未知
 	private String type;
 	private String productId;//产品ID
@@ -54,6 +55,15 @@ public class Recharge extends DataEntity<Recharge> {
 
 	public String getStatus() {
 		return status;
+	}
+
+	@JsonIgnore
+	public Double getAdminFee() {
+		return adminFee;
+	}
+
+	public void setAdminFee(Double adminFee) {
+		this.adminFee = adminFee;
 	}
 
 	public void setStatus(String status) {

@@ -12,7 +12,6 @@ import com.yuandu.erp.common.utils.HttpClientUtil;
 import com.yuandu.erp.common.utils.StringUtils;
 import com.yuandu.erp.modules.business.entity.Recharge;
 import com.yuandu.erp.modules.sys.entity.User;
-import com.yuandu.erp.modules.sys.utils.DictUtils;
 import com.yuandu.erp.modules.sys.utils.UserUtils;
 import com.yuandu.erp.webservice.bean.ProductPojo;
 
@@ -129,16 +128,23 @@ public class BusinessUtil {
 		response.isCorrect();
 		//设置该用户的扣款
 		Double userRate = getFeeRate(user, response.getData().getOperators());
+		
 		Double fee = response.getData().getFee();//单价
 		if(fee!=null&&userRate!=null){
-			String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
+			DecimalFormat df = new DecimalFormat("#.##");
+			String adminRate = UserUtils.getCommonFeeRate(response.getData().getOperators());
 			double rate = StringUtils.toDouble(adminRate);
-			fee = fee/rate;//实际单价
-			response.getData().setFee(fee);
+			double userFee = fee/rate;//实际单价
+			userFee = Double.parseDouble(df.format(userFee));
 			
-			Double balance = fee * userRate;
+			response.getData().setFee(userFee);
+			Double balance = userFee * userRate;
+			
+			balance = Double.parseDouble(df.format(balance));
 			response.getData().setBalance(balance);//折扣后单价
+			
 			response.getData().setFeeRate(userRate);
+			response.getData().setAdminFee(fee);
 		}
 		return response;
 	}
@@ -248,18 +254,18 @@ public class BusinessUtil {
 	
 	private static final void validateRate(User user,ProductResponse response){
 		//设置该用户的扣款
-		String adminRate = DictUtils.getDictValue("公司商务汇率", "company_rate", "1");
 		DecimalFormat df = new DecimalFormat("#.##");
 		for(ProductPojo pojo:response.getData()){
+			String adminRate = UserUtils.getCommonFeeRate(pojo.getOperators());
 			Double userRate = getFeeRate(user, pojo.getOperators());//每个产品费率不一样
 			Double fee = pojo.getFee();
 			if(fee!=null&&userRate!=null){
 				double rate = StringUtils.toDouble(adminRate);
-				fee = fee/rate;
-				fee = Double.parseDouble(df.format(fee));
-				pojo.setFee(fee);
+				double userFee = fee/rate;
+				userFee = Double.parseDouble(df.format(userFee));
+				pojo.setFee(userFee);
 				
-				double balance = fee * userRate;
+				double balance = userFee * userRate;
 				balance = Double.parseDouble(df.format(balance));
 				pojo.setBalance(balance);
 			}
