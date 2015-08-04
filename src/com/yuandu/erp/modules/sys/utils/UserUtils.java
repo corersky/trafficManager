@@ -194,7 +194,7 @@ public class UserUtils {
 		double update = -balance;
 		User updateUser = new User();
 		updateUser.setId(user.getId());
-		updateUser.setBalance(balance);
+		updateUser.setBalance(update);
 		userDao.updateBlance(updateUser);
 		
 		updateAdminBalance(-fee);//更新管理员价格
